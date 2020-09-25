@@ -22,4 +22,12 @@ export class EmployeeService {
   create(employee: Employee) {
     return this.http.post(this.baseUrl, employee);
   }
+
+  update(id: number, employee: Employee) {
+    return this.http.patch(this.baseUrl + `/${id}`, employee);
+  }
+
+  delete(id: number) {
+    return this.http.delete(this.baseUrl + `/${id}`);
+  }
 }

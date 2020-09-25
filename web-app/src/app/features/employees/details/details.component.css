@@ -6,3 +6,11 @@
 .employees-details__content {
   margin: 0 -16px;
 }
+
+.employess-details__controls-area {
+  margin-top: 20px;
+  justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  width: 150px;
+}
