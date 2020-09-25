@@ -1,0 +1,4 @@
+:host >>> .mat-toolbar-row,
+:host >>> .mat-toolbar-single-row {
+    padding: 0 10%;
+}
