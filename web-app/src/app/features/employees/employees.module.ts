@@ -11,6 +11,6 @@ import { EmployeeDetailsResolver } from './_resolvers/employee-details.resolver'
 @NgModule({
   imports: [CommonModule, SharedModule, RouterModule.forChild(routes)],
   declarations: [ListComponent, DetailsComponent],
-  providers:[EmployeeDetailsResolver]
+  providers: [EmployeeDetailsResolver],
 })
 export class EmployeesModule {}

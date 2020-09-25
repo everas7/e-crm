@@ -1,6 +1,11 @@
-<h1 class="employees-details__header">
-  Employee: {{ employee.name + " " + employee.lastName }}
-</h1>
+<app-breadcrumb
+  [items]="[
+    { title: 'Employees', routerLink: ['/employees'] },
+    { title: employeeFullName }
+  ]"
+></app-breadcrumb>
+
+<h1 class="employees-details__header">{{ employeeFullName }}</h1>
 
 <div class="employees-details__content">
   <app-list-view [items]="general" header="General Info"></app-list-view>

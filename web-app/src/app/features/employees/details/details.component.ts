@@ -3,7 +3,10 @@ import { Employee } from 'src/app/core/models/employee';
 import { ActivatedRoute } from '@angular/router';
 
 import { ListViewItem } from 'src/app/shared/list-view/list-view.component';
-import { formatAsPhone, formatAsCedula } from 'src/app/core/helpers/StringHelper';
+import {
+  formatAsPhone,
+  formatAsCedula,
+} from 'src/app/core/helpers/StringHelper';
 
 @Component({
   selector: 'app-details',
@@ -56,5 +59,9 @@ export class DetailsComponent implements OnInit {
         content: this.employee.department,
       },
     ];
+  }
+
+  get employeeFullName() {
+    return this.employee.name + ' ' + this.employee.lastName;
   }
 }
