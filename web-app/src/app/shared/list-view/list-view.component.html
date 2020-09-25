@@ -1,0 +1,7 @@
+<mat-list>
+  <div mat-subheader *ngIf="!!header">{{header}}</div>
+  <mat-list-item *ngFor="let item of items">
+    <div mat-line>{{ item.header }}</div>
+    <div mat-line>{{ item.content }}</div>
+  </mat-list-item>
+</mat-list>

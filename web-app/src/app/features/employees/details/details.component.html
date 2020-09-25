@@ -1,0 +1,8 @@
+<h1 class="employees-details__header">
+  Employee: {{ employee.name + " " + employee.lastName }}
+</h1>
+
+<div class="employees-details__content">
+  <app-list-view [items]="general" header="General Info"></app-list-view>
+  <app-list-view [items]="contact" header="Contact Info"></app-list-view>
+</div>

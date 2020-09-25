@@ -4,6 +4,7 @@ import { EmployeeService } from 'src/app/core/services/employee.service';
 
 import { TableColumn } from 'src/app/shared/table/table.component';
 import { Employee } from 'src/app/core/models/employee';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-list',
@@ -13,7 +14,10 @@ import { Employee } from 'src/app/core/models/employee';
 export class ListComponent implements OnInit {
   cols: TableColumn[];
   rows: Observable<Employee[]>;
-  constructor(private employeeService: EmployeeService) {}
+  constructor(
+    private employeeService: EmployeeService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.cols = [
@@ -31,5 +35,9 @@ export class ListComponent implements OnInit {
       },
     ];
     this.rows = this.employeeService.getAll();
+  }
+
+  handleRowClick(employee) {
+    this.router.navigate([`employees/${employee.id}`]);
   }
 }
