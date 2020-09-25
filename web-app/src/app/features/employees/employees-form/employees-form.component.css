@@ -1,0 +1,11 @@
+.employees-form {
+  width: 80%;
+  margin-top: 20px;
+}
+
+.employess-form__controls-area {
+  margin-top: 20px;
+  justify-content: end;
+  display: flex;
+  flex-direction: row;
+}

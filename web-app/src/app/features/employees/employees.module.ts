@@ -8,9 +8,15 @@ import { DetailsComponent } from './details/details.component';
 import { EmployeesFormComponent } from './employees-form/employees-form.component';
 import { routes } from './employees.routes';
 import { EmployeeDetailsResolver } from './_resolvers/employee-details.resolver';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-  imports: [CommonModule, SharedModule, RouterModule.forChild(routes)],
+  imports: [
+    CommonModule,
+    SharedModule,
+    RouterModule.forChild(routes),
+    ReactiveFormsModule,
+  ],
   declarations: [ListComponent, DetailsComponent, EmployeesFormComponent],
   providers: [EmployeeDetailsResolver],
 })
