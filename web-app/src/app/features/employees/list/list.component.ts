@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { TableColumn, TableRow } from 'src/app/shared/table/table.component';
+import { Observable } from 'rxjs';
+import { EmployeeService } from 'src/app/core/services/employee.service';
 
-const DATA = [
-  {name: 'Nombre', lastName: 'Apellido', department: 'Sales'},
-  {name: 'Nombre', lastName: 'Apellido', department: 'IT'},
-]
+import { TableColumn } from 'src/app/shared/table/table.component';
+import { Employee } from 'src/app/core/models/employee';
 
 @Component({
   selector: 'app-list',
@@ -13,8 +12,8 @@ const DATA = [
 })
 export class ListComponent implements OnInit {
   cols: TableColumn[];
-  rows: TableRow[];
-  constructor() {}
+  rows: Observable<Employee[]>;
+  constructor(private employeeService: EmployeeService) {}
 
   ngOnInit() {
     this.cols = [
@@ -31,6 +30,6 @@ export class ListComponent implements OnInit {
         field: 'department',
       },
     ];
-    this.rows = DATA;
+    this.rows = this.employeeService.getAll();
   }
 }

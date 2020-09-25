@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { SharedModule } from './shared/shared.module';
+import { CoreModule } from './core/core.module';
 import { EmployeesModule } from './features/employees/employees.module';
 import { routes } from './app.routes';
 
@@ -18,7 +19,8 @@ import { routes } from './app.routes';
     BrowserAnimationsModule,
     RouterModule.forRoot(routes),
     SharedModule,
-    EmployeesModule
+    CoreModule,
+    EmployeesModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
