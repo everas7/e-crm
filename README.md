@@ -54,6 +54,12 @@ WebApp
 npm start
 ```
 
+API
+
+```
+./mvnw clean spring-boot:run
+```
+
 # Additional Notes
 
 TODO
