@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 export interface TableColumn {
   label: string;
@@ -17,10 +17,15 @@ export interface TableRow {
 export class TableComponent implements OnInit {
   @Input() rows: TableRow[];
   @Input() cols: TableColumn[];
+  @Output() onRowClick = new EventEmitter();
   displayedColumns: string[];
   constructor() {}
 
   ngOnInit() {
     this.displayedColumns = this.cols.map((col) => col.field);
+  }
+
+  handleRowClick(row) {
+    this.onRowClick.emit(row);
   }
 }

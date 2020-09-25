@@ -4,10 +4,13 @@ import { RouterModule } from '@angular/router';
 
 import { SharedModule } from '../../shared/shared.module';
 import { ListComponent } from './list/list.component';
+import { DetailsComponent } from './details/details.component';
 import { routes } from './employees.routes';
+import { EmployeeDetailsResolver } from './_resolvers/employee-details.resolver';
 
 @NgModule({
   imports: [CommonModule, SharedModule, RouterModule.forChild(routes)],
-  declarations: [ListComponent],
+  declarations: [ListComponent, DetailsComponent],
+  providers: [EmployeeDetailsResolver],
 })
 export class EmployeesModule {}

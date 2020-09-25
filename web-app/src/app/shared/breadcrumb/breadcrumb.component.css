@@ -1,0 +1,28 @@
+.breadcrumb__container {
+  height: 45px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 34px;
+  display: flex;
+  flex-direction: row;
+}
+
+.breadcrumb__item {
+  color: #3f51b5;
+  display: flex;
+  flex-direction: row;
+  cursor: pointer;
+}
+
+.breadcrumb__item:focus {
+  outline: unset;
+}
+
+.breadcrumb__item.active {
+  color: inherit;
+  cursor: default;
+}
+
+.breadcrumb__divider {
+  margin: 0 10px;
+}

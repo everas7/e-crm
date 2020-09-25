@@ -1,3 +1,7 @@
-:host >>> table.mat-table  {
- width: 100%;
+:host >>> table.mat-table {
+  width: 100%;
+}
+
+:host >>> .mat-row:hover {
+  background: rgba(236, 240, 241, 0.5);
 }
