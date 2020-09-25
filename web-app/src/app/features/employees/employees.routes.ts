@@ -27,6 +27,11 @@ export const routes: Routes = [
         component: DetailsComponent,
         resolve: { employee: EmployeeDetailsResolver },
       },
+      {
+        path: 'employees/:id/edit',
+        component: EmployeesFormComponent,
+        resolve: { employee: EmployeeDetailsResolver },
+      },
     ],
   },
 ];

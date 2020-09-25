@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Employee } from 'src/app/core/models/employee';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { ListViewItem } from 'src/app/shared/list-view/list-view.component';
 import {
   formatAsPhone,
   formatAsCedula,
 } from 'src/app/core/helpers/StringHelper';
+import { EmployeeService } from 'src/app/core/services/employee.service';
 
 @Component({
   selector: 'app-details',
@@ -18,7 +19,11 @@ export class DetailsComponent implements OnInit {
   general: ListViewItem[];
   contact: ListViewItem[];
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private employeeService: EmployeeService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.loadEmployee();
@@ -63,5 +68,15 @@ export class DetailsComponent implements OnInit {
 
   get employeeFullName() {
     return this.employee.name + ' ' + this.employee.lastName;
+  }
+
+  onDelete() {
+    this.employeeService.delete(this.employee.id).subscribe(() => {
+      this.router.navigate(['/employees']);
+    });
+  }
+
+  onEdit() {
+    this.router.navigate([`/employees/${this.employee.id}/edit`]);
   }
 }
