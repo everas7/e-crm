@@ -1537,7 +1537,7 @@ __webpack_require__.r(__webpack_exports__);
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 const environment = {
-    apiUrl: 'http://localhost:8080',
+    apiUrl: 'https://e-crm-nt.herokuapp.com/api',
     production: false
 };
 /*
