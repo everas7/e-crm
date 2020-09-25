@@ -1,0 +1,15 @@
+<mat-form-field class="form-input">
+  <mat-label>{{ label }}</mat-label>
+  <input
+    matInput
+    [placeholder]="placeholder"
+    [disabled]="disabled"
+    [mask]="mask"
+    [formControl]="uniqueNameControl"
+    (blur)="onInputBlur()"
+  />
+  <mat-hint>{{hint}}</mat-hint>
+  <mat-error>
+    {{ error }}
+  </mat-error>
+</mat-form-field>

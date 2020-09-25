@@ -1,4 +1,12 @@
 <div class="employees-list">
-    <h1 class="employees-list__header"> Employees</h1>
-  <app-table [cols]="cols" [rows]="rows | async" (onRowClick)="handleRowClick($event)"></app-table>
+  <div class="employees-list__header">
+    <h1>Employees</h1>
+    <app-button text="Register Employee" color="accent" (click)="createEmployee()"></app-button>
+  </div>
+
+  <app-table
+    [cols]="cols"
+    [rows]="rows | async"
+    (onRowClick)="handleRowClick($event)"
+  ></app-table>
 </div>

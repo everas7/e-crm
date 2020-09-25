@@ -1,0 +1,54 @@
+<app-breadcrumb
+  [items]="[
+    { title: 'Employees', routerLink: ['/employees'] },
+    { title: 'Create' }
+  ]"
+></app-breadcrumb>
+
+<form [formGroup]="form" class="employees-form">
+  <h1>Employee: {{ employeeFullName }}</h1>
+
+  <app-input
+    formControlName="name"
+    label="Names"
+    placeholder="John Richard"
+    [error]="getErrorMessage(form.get('name'), 'Names')"
+  ></app-input>
+  <app-input
+    formControlName="lastName"
+    label="Last Names"
+    placeholder="Doe Kent"
+    [error]="getErrorMessage(form.get('lastName'), 'Last Names')"
+  ></app-input>
+
+  <app-input
+    formControlName="department"
+    label="Department"
+    placeholder="Sales"
+    [error]="getErrorMessage(form.get('department'), 'Department')"
+  ></app-input>
+
+  <app-input
+    formControlName="idDocument"
+    label="ID Document"
+    placeholder="999-9999999-9"
+    mask="000-0000000-0"
+    [error]="getErrorMessage(form.get('idDocument'), 'ID Document')"
+  ></app-input>
+  <app-input
+    formControlName="phone"
+    label="Phone"
+    placeholder="(999) 999-9999"
+    mask="(000) 000-0000"
+    [error]="getErrorMessage(form.get('phone'), 'Phone')"
+  ></app-input>
+
+  <div class="employess-form__controls-area">
+    <app-button
+      text="Register"
+      color="primary"
+      [disabled]="!form.valid"
+      (click)="onSubmit()"
+    ></app-button>
+  </div>
+</form>

@@ -40,4 +40,8 @@ export class ListComponent implements OnInit {
   handleRowClick(employee) {
     this.router.navigate([`employees/${employee.id}`]);
   }
+
+  createEmployee() {
+    this.router.navigate([`employees/create`]);
+  }
 }
