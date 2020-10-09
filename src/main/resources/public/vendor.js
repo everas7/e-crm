@@ -63249,6 +63249,950 @@ MatFormFieldModule.decorators = [
 
 /***/ }),
 
+/***/ "./node_modules/@angular/material/fesm2015/icon.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/@angular/material/fesm2015/icon.js ***!
+  \*********************************************************/
+/*! exports provided: ICON_REGISTRY_PROVIDER, ICON_REGISTRY_PROVIDER_FACTORY, MAT_ICON_LOCATION, MAT_ICON_LOCATION_FACTORY, MatIcon, MatIconModule, MatIconRegistry, getMatIconFailedToSanitizeLiteralError, getMatIconFailedToSanitizeUrlError, getMatIconNameNotFoundError, getMatIconNoHttpProviderError, ɵ0 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ICON_REGISTRY_PROVIDER", function() { return ICON_REGISTRY_PROVIDER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ICON_REGISTRY_PROVIDER_FACTORY", function() { return ICON_REGISTRY_PROVIDER_FACTORY; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MAT_ICON_LOCATION", function() { return MAT_ICON_LOCATION; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MAT_ICON_LOCATION_FACTORY", function() { return MAT_ICON_LOCATION_FACTORY; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MatIcon", function() { return MatIcon; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MatIconModule", function() { return MatIconModule; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MatIconRegistry", function() { return MatIconRegistry; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getMatIconFailedToSanitizeLiteralError", function() { return getMatIconFailedToSanitizeLiteralError; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getMatIconFailedToSanitizeUrlError", function() { return getMatIconFailedToSanitizeUrlError; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getMatIconNameNotFoundError", function() { return getMatIconNameNotFoundError; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getMatIconNoHttpProviderError", function() { return getMatIconNoHttpProviderError; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ɵ0", function() { return ɵ0; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/material/core */ "./node_modules/@angular/material/fesm2015/core.js");
+/* harmony import */ var _angular_cdk_coercion__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/cdk/coercion */ "./node_modules/@angular/cdk/fesm2015/coercion.js");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm2015/common.js");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm2015/index.js");
+/* harmony import */ var rxjs_operators__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! rxjs/operators */ "./node_modules/rxjs/_esm2015/operators/index.js");
+/* harmony import */ var _angular_common_http__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/common/http */ "./node_modules/@angular/common/fesm2015/http.js");
+/* harmony import */ var _angular_platform_browser__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/platform-browser */ "./node_modules/@angular/platform-browser/fesm2015/platform-browser.js");
+
+
+
+
+
+
+
+
+
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+/**
+ * Returns an exception to be thrown in the case when attempting to
+ * load an icon with a name that cannot be found.
+ * @docs-private
+ */
+function getMatIconNameNotFoundError(iconName) {
+    return Error(`Unable to find icon with the name "${iconName}"`);
+}
+/**
+ * Returns an exception to be thrown when the consumer attempts to use
+ * `<mat-icon>` without including @angular/common/http.
+ * @docs-private
+ */
+function getMatIconNoHttpProviderError() {
+    return Error('Could not find HttpClient provider for use with Angular Material icons. ' +
+        'Please include the HttpClientModule from @angular/common/http in your ' +
+        'app imports.');
+}
+/**
+ * Returns an exception to be thrown when a URL couldn't be sanitized.
+ * @param url URL that was attempted to be sanitized.
+ * @docs-private
+ */
+function getMatIconFailedToSanitizeUrlError(url) {
+    return Error(`The URL provided to MatIconRegistry was not trusted as a resource URL ` +
+        `via Angular's DomSanitizer. Attempted URL was "${url}".`);
+}
+/**
+ * Returns an exception to be thrown when a HTML string couldn't be sanitized.
+ * @param literal HTML that was attempted to be sanitized.
+ * @docs-private
+ */
+function getMatIconFailedToSanitizeLiteralError(literal) {
+    return Error(`The literal provided to MatIconRegistry was not trusted as safe HTML by ` +
+        `Angular's DomSanitizer. Attempted literal was "${literal}".`);
+}
+/**
+ * Configuration for an icon, including the URL and possibly the cached SVG element.
+ * @docs-private
+ */
+class SvgIconConfig {
+    constructor(url, svgText, options) {
+        this.url = url;
+        this.svgText = svgText;
+        this.options = options;
+    }
+}
+/**
+ * Service to register and display icons used by the `<mat-icon>` component.
+ * - Registers icon URLs by namespace and name.
+ * - Registers icon set URLs by namespace.
+ * - Registers aliases for CSS classes, for use with icon fonts.
+ * - Loads icons from URLs and extracts individual icons from icon sets.
+ */
+class MatIconRegistry {
+    constructor(_httpClient, _sanitizer, document, _errorHandler) {
+        this._httpClient = _httpClient;
+        this._sanitizer = _sanitizer;
+        this._errorHandler = _errorHandler;
+        /**
+         * URLs and cached SVG elements for individual icons. Keys are of the format "[namespace]:[icon]".
+         */
+        this._svgIconConfigs = new Map();
+        /**
+         * SvgIconConfig objects and cached SVG elements for icon sets, keyed by namespace.
+         * Multiple icon sets can be registered under the same namespace.
+         */
+        this._iconSetConfigs = new Map();
+        /** Cache for icons loaded by direct URLs. */
+        this._cachedIconsByUrl = new Map();
+        /** In-progress icon fetches. Used to coalesce multiple requests to the same URL. */
+        this._inProgressUrlFetches = new Map();
+        /** Map from font identifiers to their CSS class names. Used for icon fonts. */
+        this._fontCssClassesByAlias = new Map();
+        /**
+         * The CSS class to apply when an `<mat-icon>` component has no icon name, url, or font specified.
+         * The default 'material-icons' value assumes that the material icon font has been loaded as
+         * described at http://google.github.io/material-design-icons/#icon-font-for-the-web
+         */
+        this._defaultFontSetClass = 'material-icons';
+        this._document = document;
+    }
+    /**
+     * Registers an icon by URL in the default namespace.
+     * @param iconName Name under which the icon should be registered.
+     * @param url
+     */
+    addSvgIcon(iconName, url, options) {
+        return this.addSvgIconInNamespace('', iconName, url, options);
+    }
+    /**
+     * Registers an icon using an HTML string in the default namespace.
+     * @param iconName Name under which the icon should be registered.
+     * @param literal SVG source of the icon.
+     */
+    addSvgIconLiteral(iconName, literal, options) {
+        return this.addSvgIconLiteralInNamespace('', iconName, literal, options);
+    }
+    /**
+     * Registers an icon by URL in the specified namespace.
+     * @param namespace Namespace in which the icon should be registered.
+     * @param iconName Name under which the icon should be registered.
+     * @param url
+     */
+    addSvgIconInNamespace(namespace, iconName, url, options) {
+        return this._addSvgIconConfig(namespace, iconName, new SvgIconConfig(url, null, options));
+    }
+    /**
+     * Registers an icon using an HTML string in the specified namespace.
+     * @param namespace Namespace in which the icon should be registered.
+     * @param iconName Name under which the icon should be registered.
+     * @param literal SVG source of the icon.
+     */
+    addSvgIconLiteralInNamespace(namespace, iconName, literal, options) {
+        const cleanLiteral = this._sanitizer.sanitize(_angular_core__WEBPACK_IMPORTED_MODULE_0__["SecurityContext"].HTML, literal);
+        // TODO: add an ngDevMode check
+        if (!cleanLiteral) {
+            throw getMatIconFailedToSanitizeLiteralError(literal);
+        }
+        return this._addSvgIconConfig(namespace, iconName, new SvgIconConfig('', cleanLiteral, options));
+    }
+    /**
+     * Registers an icon set by URL in the default namespace.
+     * @param url
+     */
+    addSvgIconSet(url, options) {
+        return this.addSvgIconSetInNamespace('', url, options);
+    }
+    /**
+     * Registers an icon set using an HTML string in the default namespace.
+     * @param literal SVG source of the icon set.
+     */
+    addSvgIconSetLiteral(literal, options) {
+        return this.addSvgIconSetLiteralInNamespace('', literal, options);
+    }
+    /**
+     * Registers an icon set by URL in the specified namespace.
+     * @param namespace Namespace in which to register the icon set.
+     * @param url
+     */
+    addSvgIconSetInNamespace(namespace, url, options) {
+        return this._addSvgIconSetConfig(namespace, new SvgIconConfig(url, null, options));
+    }
+    /**
+     * Registers an icon set using an HTML string in the specified namespace.
+     * @param namespace Namespace in which to register the icon set.
+     * @param literal SVG source of the icon set.
+     */
+    addSvgIconSetLiteralInNamespace(namespace, literal, options) {
+        const cleanLiteral = this._sanitizer.sanitize(_angular_core__WEBPACK_IMPORTED_MODULE_0__["SecurityContext"].HTML, literal);
+        if (!cleanLiteral) {
+            throw getMatIconFailedToSanitizeLiteralError(literal);
+        }
+        return this._addSvgIconSetConfig(namespace, new SvgIconConfig('', cleanLiteral, options));
+    }
+    /**
+     * Defines an alias for a CSS class name to be used for icon fonts. Creating an matIcon
+     * component with the alias as the fontSet input will cause the class name to be applied
+     * to the `<mat-icon>` element.
+     *
+     * @param alias Alias for the font.
+     * @param className Class name override to be used instead of the alias.
+     */
+    registerFontClassAlias(alias, className = alias) {
+        this._fontCssClassesByAlias.set(alias, className);
+        return this;
+    }
+    /**
+     * Returns the CSS class name associated with the alias by a previous call to
+     * registerFontClassAlias. If no CSS class has been associated, returns the alias unmodified.
+     */
+    classNameForFontAlias(alias) {
+        return this._fontCssClassesByAlias.get(alias) || alias;
+    }
+    /**
+     * Sets the CSS class name to be used for icon fonts when an `<mat-icon>` component does not
+     * have a fontSet input value, and is not loading an icon by name or URL.
+     *
+     * @param className
+     */
+    setDefaultFontSetClass(className) {
+        this._defaultFontSetClass = className;
+        return this;
+    }
+    /**
+     * Returns the CSS class name to be used for icon fonts when an `<mat-icon>` component does not
+     * have a fontSet input value, and is not loading an icon by name or URL.
+     */
+    getDefaultFontSetClass() {
+        return this._defaultFontSetClass;
+    }
+    /**
+     * Returns an Observable that produces the icon (as an `<svg>` DOM element) from the given URL.
+     * The response from the URL may be cached so this will not always cause an HTTP request, but
+     * the produced element will always be a new copy of the originally fetched icon. (That is,
+     * it will not contain any modifications made to elements previously returned).
+     *
+     * @param safeUrl URL from which to fetch the SVG icon.
+     */
+    getSvgIconFromUrl(safeUrl) {
+        const url = this._sanitizer.sanitize(_angular_core__WEBPACK_IMPORTED_MODULE_0__["SecurityContext"].RESOURCE_URL, safeUrl);
+        if (!url) {
+            throw getMatIconFailedToSanitizeUrlError(safeUrl);
+        }
+        const cachedIcon = this._cachedIconsByUrl.get(url);
+        if (cachedIcon) {
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["of"])(cloneSvg(cachedIcon));
+        }
+        return this._loadSvgIconFromConfig(new SvgIconConfig(safeUrl, null)).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["tap"])(svg => this._cachedIconsByUrl.set(url, svg)), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["map"])(svg => cloneSvg(svg)));
+    }
+    /**
+     * Returns an Observable that produces the icon (as an `<svg>` DOM element) with the given name
+     * and namespace. The icon must have been previously registered with addIcon or addIconSet;
+     * if not, the Observable will throw an error.
+     *
+     * @param name Name of the icon to be retrieved.
+     * @param namespace Namespace in which to look for the icon.
+     */
+    getNamedSvgIcon(name, namespace = '') {
+        // Return (copy of) cached icon if possible.
+        const key = iconKey(namespace, name);
+        const config = this._svgIconConfigs.get(key);
+        if (config) {
+            return this._getSvgFromConfig(config);
+        }
+        // See if we have any icon sets registered for the namespace.
+        const iconSetConfigs = this._iconSetConfigs.get(namespace);
+        if (iconSetConfigs) {
+            return this._getSvgFromIconSetConfigs(name, iconSetConfigs);
+        }
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["throwError"])(getMatIconNameNotFoundError(key));
+    }
+    ngOnDestroy() {
+        this._svgIconConfigs.clear();
+        this._iconSetConfigs.clear();
+        this._cachedIconsByUrl.clear();
+    }
+    /**
+     * Returns the cached icon for a SvgIconConfig if available, or fetches it from its URL if not.
+     */
+    _getSvgFromConfig(config) {
+        if (config.svgText) {
+            // We already have the SVG element for this icon, return a copy.
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["of"])(cloneSvg(this._svgElementFromConfig(config)));
+        }
+        else {
+            // Fetch the icon from the config's URL, cache it, and return a copy.
+            return this._loadSvgIconFromConfig(config).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["map"])(svg => cloneSvg(svg)));
+        }
+    }
+    /**
+     * Attempts to find an icon with the specified name in any of the SVG icon sets.
+     * First searches the available cached icons for a nested element with a matching name, and
+     * if found copies the element to a new `<svg>` element. If not found, fetches all icon sets
+     * that have not been cached, and searches again after all fetches are completed.
+     * The returned Observable produces the SVG element if possible, and throws
+     * an error if no icon with the specified name can be found.
+     */
+    _getSvgFromIconSetConfigs(name, iconSetConfigs) {
+        // For all the icon set SVG elements we've fetched, see if any contain an icon with the
+        // requested name.
+        const namedIcon = this._extractIconWithNameFromAnySet(name, iconSetConfigs);
+        if (namedIcon) {
+            // We could cache namedIcon in _svgIconConfigs, but since we have to make a copy every
+            // time anyway, there's probably not much advantage compared to just always extracting
+            // it from the icon set.
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["of"])(namedIcon);
+        }
+        // Not found in any cached icon sets. If there are icon sets with URLs that we haven't
+        // fetched, fetch them now and look for iconName in the results.
+        const iconSetFetchRequests = iconSetConfigs
+            .filter(iconSetConfig => !iconSetConfig.svgText)
+            .map(iconSetConfig => {
+            return this._loadSvgIconSetFromConfig(iconSetConfig).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["catchError"])((err) => {
+                const url = this._sanitizer.sanitize(_angular_core__WEBPACK_IMPORTED_MODULE_0__["SecurityContext"].RESOURCE_URL, iconSetConfig.url);
+                // Swallow errors fetching individual URLs so the
+                // combined Observable won't necessarily fail.
+                const errorMessage = `Loading icon set URL: ${url} failed: ${err.message}`;
+                this._errorHandler.handleError(new Error(errorMessage));
+                return Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["of"])(null);
+            }));
+        });
+        // Fetch all the icon set URLs. When the requests complete, every IconSet should have a
+        // cached SVG element (unless the request failed), and we can check again for the icon.
+        return Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["forkJoin"])(iconSetFetchRequests).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["map"])(() => {
+            const foundIcon = this._extractIconWithNameFromAnySet(name, iconSetConfigs);
+            // TODO: add an ngDevMode check
+            if (!foundIcon) {
+                throw getMatIconNameNotFoundError(name);
+            }
+            return foundIcon;
+        }));
+    }
+    /**
+     * Searches the cached SVG elements for the given icon sets for a nested icon element whose "id"
+     * tag matches the specified name. If found, copies the nested element to a new SVG element and
+     * returns it. Returns null if no matching element is found.
+     */
+    _extractIconWithNameFromAnySet(iconName, iconSetConfigs) {
+        // Iterate backwards, so icon sets added later have precedence.
+        for (let i = iconSetConfigs.length - 1; i >= 0; i--) {
+            const config = iconSetConfigs[i];
+            // Parsing the icon set's text into an SVG element can be expensive. We can avoid some of
+            // the parsing by doing a quick check using `indexOf` to see if there's any chance for the
+            // icon to be in the set. This won't be 100% accurate, but it should help us avoid at least
+            // some of the parsing.
+            if (config.svgText && config.svgText.indexOf(iconName) > -1) {
+                const svg = this._svgElementFromConfig(config);
+                const foundIcon = this._extractSvgIconFromSet(svg, iconName, config.options);
+                if (foundIcon) {
+                    return foundIcon;
+                }
+            }
+        }
+        return null;
+    }
+    /**
+     * Loads the content of the icon URL specified in the SvgIconConfig and creates an SVG element
+     * from it.
+     */
+    _loadSvgIconFromConfig(config) {
+        return this._fetchIcon(config).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["tap"])(svgText => config.svgText = svgText), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["map"])(() => this._svgElementFromConfig(config)));
+    }
+    /**
+     * Loads the content of the icon set URL specified in the
+     * SvgIconConfig and attaches it to the config.
+     */
+    _loadSvgIconSetFromConfig(config) {
+        if (config.svgText) {
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_4__["of"])(null);
+        }
+        return this._fetchIcon(config).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["tap"])(svgText => config.svgText = svgText));
+    }
+    /**
+     * Searches the cached element of the given SvgIconConfig for a nested icon element whose "id"
+     * tag matches the specified name. If found, copies the nested element to a new SVG element and
+     * returns it. Returns null if no matching element is found.
+     */
+    _extractSvgIconFromSet(iconSet, iconName, options) {
+        // Use the `id="iconName"` syntax in order to escape special
+        // characters in the ID (versus using the #iconName syntax).
+        const iconSource = iconSet.querySelector(`[id="${iconName}"]`);
+        if (!iconSource) {
+            return null;
+        }
+        // Clone the element and remove the ID to prevent multiple elements from being added
+        // to the page with the same ID.
+        const iconElement = iconSource.cloneNode(true);
+        iconElement.removeAttribute('id');
+        // If the icon node is itself an <svg> node, clone and return it directly. If not, set it as
+        // the content of a new <svg> node.
+        if (iconElement.nodeName.toLowerCase() === 'svg') {
+            return this._setSvgAttributes(iconElement, options);
+        }
+        // If the node is a <symbol>, it won't be rendered so we have to convert it into <svg>. Note
+        // that the same could be achieved by referring to it via <use href="#id">, however the <use>
+        // tag is problematic on Firefox, because it needs to include the current page path.
+        if (iconElement.nodeName.toLowerCase() === 'symbol') {
+            return this._setSvgAttributes(this._toSvgElement(iconElement), options);
+        }
+        // createElement('SVG') doesn't work as expected; the DOM ends up with
+        // the correct nodes, but the SVG content doesn't render. Instead we
+        // have to create an empty SVG node using innerHTML and append its content.
+        // Elements created using DOMParser.parseFromString have the same problem.
+        // http://stackoverflow.com/questions/23003278/svg-innerhtml-in-firefox-can-not-display
+        const svg = this._svgElementFromString('<svg></svg>');
+        // Clone the node so we don't remove it from the parent icon set element.
+        svg.appendChild(iconElement);
+        return this._setSvgAttributes(svg, options);
+    }
+    /**
+     * Creates a DOM element from the given SVG string.
+     */
+    _svgElementFromString(str) {
+        const div = this._document.createElement('DIV');
+        div.innerHTML = str;
+        const svg = div.querySelector('svg');
+        // TODO: add an ngDevMode check
+        if (!svg) {
+            throw Error('<svg> tag not found');
+        }
+        return svg;
+    }
+    /**
+     * Converts an element into an SVG node by cloning all of its children.
+     */
+    _toSvgElement(element) {
+        const svg = this._svgElementFromString('<svg></svg>');
+        const attributes = element.attributes;
+        // Copy over all the attributes from the `symbol` to the new SVG, except the id.
+        for (let i = 0; i < attributes.length; i++) {
+            const { name, value } = attributes[i];
+            if (name !== 'id') {
+                svg.setAttribute(name, value);
+            }
+        }
+        for (let i = 0; i < element.childNodes.length; i++) {
+            if (element.childNodes[i].nodeType === this._document.ELEMENT_NODE) {
+                svg.appendChild(element.childNodes[i].cloneNode(true));
+            }
+        }
+        return svg;
+    }
+    /**
+     * Sets the default attributes for an SVG element to be used as an icon.
+     */
+    _setSvgAttributes(svg, options) {
+        svg.setAttribute('fit', '');
+        svg.setAttribute('height', '100%');
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.setAttribute('focusable', 'false'); // Disable IE11 default behavior to make SVGs focusable.
+        if (options && options.viewBox) {
+            svg.setAttribute('viewBox', options.viewBox);
+        }
+        return svg;
+    }
+    /**
+     * Returns an Observable which produces the string contents of the given icon. Results may be
+     * cached, so future calls with the same URL may not cause another HTTP request.
+     */
+    _fetchIcon(iconConfig) {
+        var _a;
+        const { url: safeUrl, options } = iconConfig;
+        const withCredentials = (_a = options === null || options === void 0 ? void 0 : options.withCredentials) !== null && _a !== void 0 ? _a : false;
+        if (!this._httpClient) {
+            throw getMatIconNoHttpProviderError();
+        }
+        // TODO: add an ngDevMode check
+        if (safeUrl == null) {
+            throw Error(`Cannot fetch icon from URL "${safeUrl}".`);
+        }
+        const url = this._sanitizer.sanitize(_angular_core__WEBPACK_IMPORTED_MODULE_0__["SecurityContext"].RESOURCE_URL, safeUrl);
+        // TODO: add an ngDevMode check
+        if (!url) {
+            throw getMatIconFailedToSanitizeUrlError(safeUrl);
+        }
+        // Store in-progress fetches to avoid sending a duplicate request for a URL when there is
+        // already a request in progress for that URL. It's necessary to call share() on the
+        // Observable returned by http.get() so that multiple subscribers don't cause multiple XHRs.
+        const inProgressFetch = this._inProgressUrlFetches.get(url);
+        if (inProgressFetch) {
+            return inProgressFetch;
+        }
+        const req = this._httpClient.get(url, { responseType: 'text', withCredentials }).pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["finalize"])(() => this._inProgressUrlFetches.delete(url)), Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["share"])());
+        this._inProgressUrlFetches.set(url, req);
+        return req;
+    }
+    /**
+     * Registers an icon config by name in the specified namespace.
+     * @param namespace Namespace in which to register the icon config.
+     * @param iconName Name under which to register the config.
+     * @param config Config to be registered.
+     */
+    _addSvgIconConfig(namespace, iconName, config) {
+        this._svgIconConfigs.set(iconKey(namespace, iconName), config);
+        return this;
+    }
+    /**
+     * Registers an icon set config in the specified namespace.
+     * @param namespace Namespace in which to register the icon config.
+     * @param config Config to be registered.
+     */
+    _addSvgIconSetConfig(namespace, config) {
+        const configNamespace = this._iconSetConfigs.get(namespace);
+        if (configNamespace) {
+            configNamespace.push(config);
+        }
+        else {
+            this._iconSetConfigs.set(namespace, [config]);
+        }
+        return this;
+    }
+    /** Parses a config's text into an SVG element. */
+    _svgElementFromConfig(config) {
+        if (!config.svgElement) {
+            const svg = this._svgElementFromString(config.svgText);
+            this._setSvgAttributes(svg, config.options);
+            config.svgElement = svg;
+        }
+        return config.svgElement;
+    }
+}
+MatIconRegistry.ɵprov = Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"])({ factory: function MatIconRegistry_Factory() { return new MatIconRegistry(Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_common_http__WEBPACK_IMPORTED_MODULE_6__["HttpClient"], 8), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_platform_browser__WEBPACK_IMPORTED_MODULE_7__["DomSanitizer"]), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_common__WEBPACK_IMPORTED_MODULE_3__["DOCUMENT"], 8), Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵinject"])(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ErrorHandler"])); }, token: MatIconRegistry, providedIn: "root" });
+MatIconRegistry.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"], args: [{ providedIn: 'root' },] }
+];
+MatIconRegistry.ctorParameters = () => [
+    { type: _angular_common_http__WEBPACK_IMPORTED_MODULE_6__["HttpClient"], decorators: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Optional"] }] },
+    { type: _angular_platform_browser__WEBPACK_IMPORTED_MODULE_7__["DomSanitizer"] },
+    { type: undefined, decorators: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Optional"] }, { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Inject"], args: [_angular_common__WEBPACK_IMPORTED_MODULE_3__["DOCUMENT"],] }] },
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ErrorHandler"] }
+];
+/** @docs-private */
+function ICON_REGISTRY_PROVIDER_FACTORY(parentRegistry, httpClient, sanitizer, errorHandler, document) {
+    return parentRegistry || new MatIconRegistry(httpClient, sanitizer, document, errorHandler);
+}
+/** @docs-private */
+const ICON_REGISTRY_PROVIDER = {
+    // If there is already an MatIconRegistry available, use that. Otherwise, provide a new one.
+    provide: MatIconRegistry,
+    deps: [
+        [new _angular_core__WEBPACK_IMPORTED_MODULE_0__["Optional"](), new _angular_core__WEBPACK_IMPORTED_MODULE_0__["SkipSelf"](), MatIconRegistry],
+        [new _angular_core__WEBPACK_IMPORTED_MODULE_0__["Optional"](), _angular_common_http__WEBPACK_IMPORTED_MODULE_6__["HttpClient"]],
+        _angular_platform_browser__WEBPACK_IMPORTED_MODULE_7__["DomSanitizer"],
+        _angular_core__WEBPACK_IMPORTED_MODULE_0__["ErrorHandler"],
+        [new _angular_core__WEBPACK_IMPORTED_MODULE_0__["Optional"](), _angular_common__WEBPACK_IMPORTED_MODULE_3__["DOCUMENT"]],
+    ],
+    useFactory: ICON_REGISTRY_PROVIDER_FACTORY,
+};
+/** Clones an SVGElement while preserving type information. */
+function cloneSvg(svg) {
+    return svg.cloneNode(true);
+}
+/** Returns the cache key to use for an icon namespace and name. */
+function iconKey(namespace, name) {
+    return namespace + ':' + name;
+}
+
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+// Boilerplate for applying mixins to MatIcon.
+/** @docs-private */
+class MatIconBase {
+    constructor(_elementRef) {
+        this._elementRef = _elementRef;
+    }
+}
+const _MatIconMixinBase = Object(_angular_material_core__WEBPACK_IMPORTED_MODULE_1__["mixinColor"])(MatIconBase);
+/**
+ * Injection token used to provide the current location to `MatIcon`.
+ * Used to handle server-side rendering and to stub out during unit tests.
+ * @docs-private
+ */
+const MAT_ICON_LOCATION = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["InjectionToken"]('mat-icon-location', {
+    providedIn: 'root',
+    factory: MAT_ICON_LOCATION_FACTORY
+});
+/** @docs-private */
+function MAT_ICON_LOCATION_FACTORY() {
+    const _document = Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["inject"])(_angular_common__WEBPACK_IMPORTED_MODULE_3__["DOCUMENT"]);
+    const _location = _document ? _document.location : null;
+    return {
+        // Note that this needs to be a function, rather than a property, because Angular
+        // will only resolve it once, but we want the current path on each call.
+        getPathname: () => _location ? (_location.pathname + _location.search) : ''
+    };
+}
+/** SVG attributes that accept a FuncIRI (e.g. `url(<something>)`). */
+const funcIriAttributes = [
+    'clip-path',
+    'color-profile',
+    'src',
+    'cursor',
+    'fill',
+    'filter',
+    'marker',
+    'marker-start',
+    'marker-mid',
+    'marker-end',
+    'mask',
+    'stroke'
+];
+const ɵ0 = attr => `[${attr}]`;
+/** Selector that can be used to find all elements that are using a `FuncIRI`. */
+const funcIriAttributeSelector = funcIriAttributes.map(ɵ0).join(', ');
+/** Regex that can be used to extract the id out of a FuncIRI. */
+const funcIriPattern = /^url\(['"]?#(.*?)['"]?\)$/;
+/**
+ * Component to display an icon. It can be used in the following ways:
+ *
+ * - Specify the svgIcon input to load an SVG icon from a URL previously registered with the
+ *   addSvgIcon, addSvgIconInNamespace, addSvgIconSet, or addSvgIconSetInNamespace methods of
+ *   MatIconRegistry. If the svgIcon value contains a colon it is assumed to be in the format
+ *   "[namespace]:[name]", if not the value will be the name of an icon in the default namespace.
+ *   Examples:
+ *     `<mat-icon svgIcon="left-arrow"></mat-icon>
+ *     <mat-icon svgIcon="animals:cat"></mat-icon>`
+ *
+ * - Use a font ligature as an icon by putting the ligature text in the content of the `<mat-icon>`
+ *   component. By default the Material icons font is used as described at
+ *   http://google.github.io/material-design-icons/#icon-font-for-the-web. You can specify an
+ *   alternate font by setting the fontSet input to either the CSS class to apply to use the
+ *   desired font, or to an alias previously registered with MatIconRegistry.registerFontClassAlias.
+ *   Examples:
+ *     `<mat-icon>home</mat-icon>
+ *     <mat-icon fontSet="myfont">sun</mat-icon>`
+ *
+ * - Specify a font glyph to be included via CSS rules by setting the fontSet input to specify the
+ *   font, and the fontIcon input to specify the icon. Typically the fontIcon will specify a
+ *   CSS class which causes the glyph to be displayed via a :before selector, as in
+ *   https://fortawesome.github.io/Font-Awesome/examples/
+ *   Example:
+ *     `<mat-icon fontSet="fa" fontIcon="alarm"></mat-icon>`
+ */
+class MatIcon extends _MatIconMixinBase {
+    constructor(elementRef, _iconRegistry, ariaHidden, _location, _errorHandler) {
+        super(elementRef);
+        this._iconRegistry = _iconRegistry;
+        this._location = _location;
+        this._errorHandler = _errorHandler;
+        this._inline = false;
+        /** Subscription to the current in-progress SVG icon request. */
+        this._currentIconFetch = rxjs__WEBPACK_IMPORTED_MODULE_4__["Subscription"].EMPTY;
+        // If the user has not explicitly set aria-hidden, mark the icon as hidden, as this is
+        // the right thing to do for the majority of icon use-cases.
+        if (!ariaHidden) {
+            elementRef.nativeElement.setAttribute('aria-hidden', 'true');
+        }
+    }
+    /**
+     * Whether the icon should be inlined, automatically sizing the icon to match the font size of
+     * the element the icon is contained in.
+     */
+    get inline() {
+        return this._inline;
+    }
+    set inline(inline) {
+        this._inline = Object(_angular_cdk_coercion__WEBPACK_IMPORTED_MODULE_2__["coerceBooleanProperty"])(inline);
+    }
+    /** Font set that the icon is a part of. */
+    get fontSet() { return this._fontSet; }
+    set fontSet(value) {
+        this._fontSet = this._cleanupFontValue(value);
+    }
+    /** Name of an icon within a font set. */
+    get fontIcon() { return this._fontIcon; }
+    set fontIcon(value) {
+        this._fontIcon = this._cleanupFontValue(value);
+    }
+    /**
+     * Splits an svgIcon binding value into its icon set and icon name components.
+     * Returns a 2-element array of [(icon set), (icon name)].
+     * The separator for the two fields is ':'. If there is no separator, an empty
+     * string is returned for the icon set and the entire value is returned for
+     * the icon name. If the argument is falsy, returns an array of two empty strings.
+     * Throws an error if the name contains two or more ':' separators.
+     * Examples:
+     *   `'social:cake' -> ['social', 'cake']
+     *   'penguin' -> ['', 'penguin']
+     *   null -> ['', '']
+     *   'a:b:c' -> (throws Error)`
+     */
+    _splitIconName(iconName) {
+        if (!iconName) {
+            return ['', ''];
+        }
+        const parts = iconName.split(':');
+        switch (parts.length) {
+            case 1: return ['', parts[0]]; // Use default namespace.
+            case 2: return parts;
+            default: throw Error(`Invalid icon name: "${iconName}"`); // TODO: add an ngDevMode check
+        }
+    }
+    ngOnChanges(changes) {
+        // Only update the inline SVG icon if the inputs changed, to avoid unnecessary DOM operations.
+        const svgIconChanges = changes['svgIcon'];
+        this._svgNamespace = null;
+        this._svgName = null;
+        if (svgIconChanges) {
+            this._currentIconFetch.unsubscribe();
+            if (this.svgIcon) {
+                const [namespace, iconName] = this._splitIconName(this.svgIcon);
+                if (namespace) {
+                    this._svgNamespace = namespace;
+                }
+                if (iconName) {
+                    this._svgName = iconName;
+                }
+                this._currentIconFetch = this._iconRegistry.getNamedSvgIcon(iconName, namespace)
+                    .pipe(Object(rxjs_operators__WEBPACK_IMPORTED_MODULE_5__["take"])(1))
+                    .subscribe(svg => this._setSvgElement(svg), (err) => {
+                    const errorMessage = `Error retrieving icon ${namespace}:${iconName}! ${err.message}`;
+                    this._errorHandler.handleError(new Error(errorMessage));
+                });
+            }
+            else if (svgIconChanges.previousValue) {
+                this._clearSvgElement();
+            }
+        }
+        if (this._usingFontIcon()) {
+            this._updateFontIconClasses();
+        }
+    }
+    ngOnInit() {
+        // Update font classes because ngOnChanges won't be called if none of the inputs are present,
+        // e.g. <mat-icon>arrow</mat-icon> In this case we need to add a CSS class for the default font.
+        if (this._usingFontIcon()) {
+            this._updateFontIconClasses();
+        }
+    }
+    ngAfterViewChecked() {
+        const cachedElements = this._elementsWithExternalReferences;
+        if (cachedElements && cachedElements.size) {
+            const newPath = this._location.getPathname();
+            // We need to check whether the URL has changed on each change detection since
+            // the browser doesn't have an API that will let us react on link clicks and
+            // we can't depend on the Angular router. The references need to be updated,
+            // because while most browsers don't care whether the URL is correct after
+            // the first render, Safari will break if the user navigates to a different
+            // page and the SVG isn't re-rendered.
+            if (newPath !== this._previousPath) {
+                this._previousPath = newPath;
+                this._prependPathToReferences(newPath);
+            }
+        }
+    }
+    ngOnDestroy() {
+        this._currentIconFetch.unsubscribe();
+        if (this._elementsWithExternalReferences) {
+            this._elementsWithExternalReferences.clear();
+        }
+    }
+    _usingFontIcon() {
+        return !this.svgIcon;
+    }
+    _setSvgElement(svg) {
+        this._clearSvgElement();
+        // Workaround for IE11 and Edge ignoring `style` tags inside dynamically-created SVGs.
+        // See: https://developer.microsoft.com/en-us/microsoft-edge/platform/issues/10898469/
+        // Do this before inserting the element into the DOM, in order to avoid a style recalculation.
+        const styleTags = svg.querySelectorAll('style');
+        for (let i = 0; i < styleTags.length; i++) {
+            styleTags[i].textContent += ' ';
+        }
+        // Note: we do this fix here, rather than the icon registry, because the
+        // references have to point to the URL at the time that the icon was created.
+        const path = this._location.getPathname();
+        this._previousPath = path;
+        this._cacheChildrenWithExternalReferences(svg);
+        this._prependPathToReferences(path);
+        this._elementRef.nativeElement.appendChild(svg);
+    }
+    _clearSvgElement() {
+        const layoutElement = this._elementRef.nativeElement;
+        let childCount = layoutElement.childNodes.length;
+        if (this._elementsWithExternalReferences) {
+            this._elementsWithExternalReferences.clear();
+        }
+        // Remove existing non-element child nodes and SVGs, and add the new SVG element. Note that
+        // we can't use innerHTML, because IE will throw if the element has a data binding.
+        while (childCount--) {
+            const child = layoutElement.childNodes[childCount];
+            // 1 corresponds to Node.ELEMENT_NODE. We remove all non-element nodes in order to get rid
+            // of any loose text nodes, as well as any SVG elements in order to remove any old icons.
+            if (child.nodeType !== 1 || child.nodeName.toLowerCase() === 'svg') {
+                layoutElement.removeChild(child);
+            }
+        }
+    }
+    _updateFontIconClasses() {
+        if (!this._usingFontIcon()) {
+            return;
+        }
+        const elem = this._elementRef.nativeElement;
+        const fontSetClass = this.fontSet ?
+            this._iconRegistry.classNameForFontAlias(this.fontSet) :
+            this._iconRegistry.getDefaultFontSetClass();
+        if (fontSetClass != this._previousFontSetClass) {
+            if (this._previousFontSetClass) {
+                elem.classList.remove(this._previousFontSetClass);
+            }
+            if (fontSetClass) {
+                elem.classList.add(fontSetClass);
+            }
+            this._previousFontSetClass = fontSetClass;
+        }
+        if (this.fontIcon != this._previousFontIconClass) {
+            if (this._previousFontIconClass) {
+                elem.classList.remove(this._previousFontIconClass);
+            }
+            if (this.fontIcon) {
+                elem.classList.add(this.fontIcon);
+            }
+            this._previousFontIconClass = this.fontIcon;
+        }
+    }
+    /**
+     * Cleans up a value to be used as a fontIcon or fontSet.
+     * Since the value ends up being assigned as a CSS class, we
+     * have to trim the value and omit space-separated values.
+     */
+    _cleanupFontValue(value) {
+        return typeof value === 'string' ? value.trim().split(' ')[0] : value;
+    }
+    /**
+     * Prepends the current path to all elements that have an attribute pointing to a `FuncIRI`
+     * reference. This is required because WebKit browsers require references to be prefixed with
+     * the current path, if the page has a `base` tag.
+     */
+    _prependPathToReferences(path) {
+        const elements = this._elementsWithExternalReferences;
+        if (elements) {
+            elements.forEach((attrs, element) => {
+                attrs.forEach(attr => {
+                    element.setAttribute(attr.name, `url('${path}#${attr.value}')`);
+                });
+            });
+        }
+    }
+    /**
+     * Caches the children of an SVG element that have `url()`
+     * references that we need to prefix with the current path.
+     */
+    _cacheChildrenWithExternalReferences(element) {
+        const elementsWithFuncIri = element.querySelectorAll(funcIriAttributeSelector);
+        const elements = this._elementsWithExternalReferences =
+            this._elementsWithExternalReferences || new Map();
+        for (let i = 0; i < elementsWithFuncIri.length; i++) {
+            funcIriAttributes.forEach(attr => {
+                const elementWithReference = elementsWithFuncIri[i];
+                const value = elementWithReference.getAttribute(attr);
+                const match = value ? value.match(funcIriPattern) : null;
+                if (match) {
+                    let attributes = elements.get(elementWithReference);
+                    if (!attributes) {
+                        attributes = [];
+                        elements.set(elementWithReference, attributes);
+                    }
+                    attributes.push({ name: attr, value: match[1] });
+                }
+            });
+        }
+    }
+}
+MatIcon.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"], args: [{
+                template: '<ng-content></ng-content>',
+                selector: 'mat-icon',
+                exportAs: 'matIcon',
+                inputs: ['color'],
+                host: {
+                    'role': 'img',
+                    'class': 'mat-icon notranslate',
+                    '[attr.data-mat-icon-type]': '_usingFontIcon() ? "font" : "svg"',
+                    '[attr.data-mat-icon-name]': '_svgName || fontIcon',
+                    '[attr.data-mat-icon-namespace]': '_svgNamespace || fontSet',
+                    '[class.mat-icon-inline]': 'inline',
+                    '[class.mat-icon-no-color]': 'color !== "primary" && color !== "accent" && color !== "warn"',
+                },
+                encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
+                changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
+                styles: [".mat-icon{background-repeat:no-repeat;display:inline-block;fill:currentColor;height:24px;width:24px}.mat-icon.mat-icon-inline{font-size:inherit;height:inherit;line-height:inherit;width:inherit}[dir=rtl] .mat-icon-rtl-mirror{transform:scale(-1, 1)}.mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-prefix .mat-icon,.mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-suffix .mat-icon{display:block}.mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-prefix .mat-icon-button .mat-icon,.mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-suffix .mat-icon-button .mat-icon{margin:auto}\n"]
+            },] }
+];
+MatIcon.ctorParameters = () => [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"] },
+    { type: MatIconRegistry },
+    { type: String, decorators: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Attribute"], args: ['aria-hidden',] }] },
+    { type: undefined, decorators: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Inject"], args: [MAT_ICON_LOCATION,] }] },
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ErrorHandler"] }
+];
+MatIcon.propDecorators = {
+    inline: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    svgIcon: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    fontSet: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    fontIcon: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }]
+};
+
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+class MatIconModule {
+}
+MatIconModule.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModule"], args: [{
+                imports: [_angular_material_core__WEBPACK_IMPORTED_MODULE_1__["MatCommonModule"]],
+                exports: [MatIcon, _angular_material_core__WEBPACK_IMPORTED_MODULE_1__["MatCommonModule"]],
+                declarations: [MatIcon],
+            },] }
+];
+
+/**
+ * @license
+ * Copyright Google LLC All Rights Reserved.
+ *
+ * Use of this source code is governed by an MIT-style license that can be
+ * found in the LICENSE file at https://angular.io/license
+ */
+
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=icon.js.map
+
+
+/***/ }),
+
 /***/ "./node_modules/@angular/material/fesm2015/input.js":
 /*!**********************************************************!*\
   !*** ./node_modules/@angular/material/fesm2015/input.js ***!
@@ -65573,6 +66517,51 @@ function View_MatFormField_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE
     } return ad; }, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_MatFormField_1)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](7, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_MatFormField_2)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](9, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](10, 0, [[3, 0], ["inputContainer", 1]], null, 4, "div", [["class", "mat-form-field-infix"]], null, null, null, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵncd"](null, 1), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](12, 0, null, null, 2, "span", [["class", "mat-form-field-label-wrapper"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_MatFormField_3)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](14, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_MatFormField_7)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](16, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_MatFormField_8)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](18, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](19, 0, null, null, 5, "div", [["class", "mat-form-field-subscript-wrapper"]], null, null, null, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](20, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgSwitch"], [], { ngSwitch: [0, "ngSwitch"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_MatFormField_9)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](22, 278528, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgSwitchCase"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"], _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgSwitch"]], { ngSwitchCase: [0, "ngSwitchCase"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_MatFormField_10)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](24, 278528, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgSwitchCase"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"], _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgSwitch"]], { ngSwitchCase: [0, "ngSwitchCase"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_0 = (_co.appearance == "outline"); _ck(_v, 7, 0, currVal_0); var currVal_1 = _co._prefixChildren.length; _ck(_v, 9, 0, currVal_1); var currVal_2 = _co._hasFloatingLabel(); _ck(_v, 14, 0, currVal_2); var currVal_3 = _co._suffixChildren.length; _ck(_v, 16, 0, currVal_3); var currVal_4 = (_co.appearance != "outline"); _ck(_v, 18, 0, currVal_4); var currVal_5 = _co._getDisplayedMessages(); _ck(_v, 20, 0, currVal_5); var currVal_6 = "error"; _ck(_v, 22, 0, currVal_6); var currVal_7 = "hint"; _ck(_v, 24, 0, currVal_7); }, null); }
 function View_MatFormField_Host_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 11, "mat-form-field", [["class", "mat-form-field"]], [[2, "mat-form-field-appearance-standard", null], [2, "mat-form-field-appearance-fill", null], [2, "mat-form-field-appearance-outline", null], [2, "mat-form-field-appearance-legacy", null], [2, "mat-form-field-invalid", null], [2, "mat-form-field-can-float", null], [2, "mat-form-field-should-float", null], [2, "mat-form-field-has-label", null], [2, "mat-form-field-hide-placeholder", null], [2, "mat-form-field-disabled", null], [2, "mat-form-field-autofilled", null], [2, "mat-focused", null], [2, "mat-accent", null], [2, "mat-warn", null], [2, "ng-untouched", null], [2, "ng-touched", null], [2, "ng-pristine", null], [2, "ng-dirty", null], [2, "ng-valid", null], [2, "ng-invalid", null], [2, "ng-pending", null], [2, "_mat-animation-noopable", null]], null, null, View_MatFormField_0, RenderType_MatFormField)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵprd"](6144, null, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_1__["MAT_FORM_FIELD"], null, [_angular_material_form_field__WEBPACK_IMPORTED_MODULE_1__["MatFormField"]]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](2, 7520256, null, 9, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_1__["MatFormField"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectorRef"], [2, _angular_material_core__WEBPACK_IMPORTED_MODULE_5__["MAT_LABEL_GLOBAL_OPTIONS"]], [2, _angular_cdk_bidi__WEBPACK_IMPORTED_MODULE_4__["Directionality"]], [2, _angular_material_form_field__WEBPACK_IMPORTED_MODULE_1__["MAT_FORM_FIELD_DEFAULT_OPTIONS"]], _angular_cdk_platform__WEBPACK_IMPORTED_MODULE_7__["Platform"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgZone"], [2, _angular_platform_browser_animations__WEBPACK_IMPORTED_MODULE_8__["ANIMATION_MODULE_TYPE"]]], null, null), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](603979776, 1, { _controlNonStatic: 0 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](335544320, 2, { _controlStatic: 0 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](603979776, 3, { _labelChildNonStatic: 0 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](335544320, 4, { _labelChildStatic: 0 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](603979776, 5, { _placeholderChild: 0 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](603979776, 6, { _errorChildren: 1 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](603979776, 7, { _hintChildren: 1 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](603979776, 8, { _prefixChildren: 1 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](603979776, 9, { _suffixChildren: 1 })], null, function (_ck, _v) { var currVal_0 = (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2).appearance == "standard"); var currVal_1 = (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2).appearance == "fill"); var currVal_2 = (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2).appearance == "outline"); var currVal_3 = (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2).appearance == "legacy"); var currVal_4 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._control.errorState; var currVal_5 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._canLabelFloat(); var currVal_6 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._shouldLabelFloat(); var currVal_7 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._hasFloatingLabel(); var currVal_8 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._hideControlPlaceholder(); var currVal_9 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._control.disabled; var currVal_10 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._control.autofilled; var currVal_11 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._control.focused; var currVal_12 = (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2).color == "accent"); var currVal_13 = (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2).color == "warn"); var currVal_14 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._shouldForward("untouched"); var currVal_15 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._shouldForward("touched"); var currVal_16 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._shouldForward("pristine"); var currVal_17 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._shouldForward("dirty"); var currVal_18 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._shouldForward("valid"); var currVal_19 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._shouldForward("invalid"); var currVal_20 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._shouldForward("pending"); var currVal_21 = !_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 2)._animationsEnabled; _ck(_v, 0, 1, [currVal_0, currVal_1, currVal_2, currVal_3, currVal_4, currVal_5, currVal_6, currVal_7, currVal_8, currVal_9, currVal_10, currVal_11, currVal_12, currVal_13, currVal_14, currVal_15, currVal_16, currVal_17, currVal_18, currVal_19, currVal_20, currVal_21]); }); }
 var MatFormFieldNgFactory = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵccf"]("mat-form-field", _angular_material_form_field__WEBPACK_IMPORTED_MODULE_1__["MatFormField"], View_MatFormField_Host_0, { color: "color", appearance: "appearance", hideRequiredMarker: "hideRequiredMarker", hintLabel: "hintLabel", floatLabel: "floatLabel" }, {}, ["[matPrefix]", "*", "mat-placeholder", "mat-label", "[matSuffix]", "mat-error", "mat-hint:not([align='end'])", "mat-hint[align='end']"]);
+
+
+
+/***/ }),
+
+/***/ "./node_modules/@angular/material/icon/index.ngfactory.js":
+/*!****************************************************************!*\
+  !*** ./node_modules/@angular/material/icon/index.ngfactory.js ***!
+  \****************************************************************/
+/*! exports provided: MatIconModuleNgFactory, RenderType_MatIcon, View_MatIcon_0, View_MatIcon_Host_0, MatIconNgFactory */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MatIconModuleNgFactory", function() { return MatIconModuleNgFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderType_MatIcon", function() { return RenderType_MatIcon; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "View_MatIcon_0", function() { return View_MatIcon_0; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "View_MatIcon_Host_0", function() { return View_MatIcon_Host_0; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MatIconNgFactory", function() { return MatIconNgFactory; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+/* harmony import */ var _angular_material_icon__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/material/icon */ "./node_modules/@angular/material/fesm2015/icon.js");
+/* harmony import */ var _angular_cdk_bidi__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/cdk/bidi */ "./node_modules/@angular/cdk/fesm2015/bidi.js");
+/* harmony import */ var _angular_material_core__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! @angular/material/core */ "./node_modules/@angular/material/fesm2015/core.js");
+/* harmony import */ var _angular_cdk_a11y__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/cdk/a11y */ "./node_modules/@angular/cdk/fesm2015/a11y.js");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm2015/common.js");
+/**
+ * @fileoverview This file was generated by the Angular template compiler. Do not edit.
+ *
+ * @suppress {suspiciousCode,uselessCode,missingProperties,missingOverride,checkTypes,extraRequire}
+ * tslint:disable
+ */ 
+
+
+
+
+
+
+var MatIconModuleNgFactory = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵcmf"](_angular_material_icon__WEBPACK_IMPORTED_MODULE_1__["MatIconModule"], [], function (_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmod"]([_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmpd"](512, _angular_core__WEBPACK_IMPORTED_MODULE_0__["ComponentFactoryResolver"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵCodegenComponentFactoryResolver"], [[8, []], [3, _angular_core__WEBPACK_IMPORTED_MODULE_0__["ComponentFactoryResolver"]], _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModuleRef"]]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmpd"](1073742336, _angular_cdk_bidi__WEBPACK_IMPORTED_MODULE_2__["BidiModule"], _angular_cdk_bidi__WEBPACK_IMPORTED_MODULE_2__["BidiModule"], []), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmpd"](1073742336, _angular_material_core__WEBPACK_IMPORTED_MODULE_3__["MatCommonModule"], _angular_material_core__WEBPACK_IMPORTED_MODULE_3__["MatCommonModule"], [_angular_cdk_a11y__WEBPACK_IMPORTED_MODULE_4__["HighContrastModeDetector"], [2, _angular_material_core__WEBPACK_IMPORTED_MODULE_3__["MATERIAL_SANITY_CHECKS"]], [2, _angular_common__WEBPACK_IMPORTED_MODULE_5__["DOCUMENT"]]]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmpd"](1073742336, _angular_material_icon__WEBPACK_IMPORTED_MODULE_1__["MatIconModule"], _angular_material_icon__WEBPACK_IMPORTED_MODULE_1__["MatIconModule"], [])]); });
+
+var styles_MatIcon = [".mat-icon{background-repeat:no-repeat;display:inline-block;fill:currentColor;height:24px;width:24px}.mat-icon.mat-icon-inline{font-size:inherit;height:inherit;line-height:inherit;width:inherit}[dir=rtl] .mat-icon-rtl-mirror{transform:scale(-1, 1)}.mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-prefix .mat-icon,.mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-suffix .mat-icon{display:block}.mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-prefix .mat-icon-button .mat-icon,.mat-form-field:not(.mat-form-field-appearance-legacy) .mat-form-field-suffix .mat-icon-button .mat-icon{margin:auto}\n"];
+var RenderType_MatIcon = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵcrt"]({ encapsulation: 2, styles: styles_MatIcon, data: {} });
+
+function View_MatIcon_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](2, [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵncd"](null, 0)], null, null); }
+function View_MatIcon_Host_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 1, "mat-icon", [["class", "mat-icon notranslate"], ["role", "img"]], [[1, "data-mat-icon-type", 0], [1, "data-mat-icon-name", 0], [1, "data-mat-icon-namespace", 0], [2, "mat-icon-inline", null], [2, "mat-icon-no-color", null]], null, null, View_MatIcon_0, RenderType_MatIcon)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](1, 9158656, null, 0, _angular_material_icon__WEBPACK_IMPORTED_MODULE_1__["MatIcon"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_material_icon__WEBPACK_IMPORTED_MODULE_1__["MatIconRegistry"], [8, null], _angular_material_icon__WEBPACK_IMPORTED_MODULE_1__["MAT_ICON_LOCATION"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ErrorHandler"]], null, null)], function (_ck, _v) { _ck(_v, 1, 0); }, function (_ck, _v) { var currVal_0 = (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 1)._usingFontIcon() ? "font" : "svg"); var currVal_1 = (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 1)._svgName || _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 1).fontIcon); var currVal_2 = (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 1)._svgNamespace || _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 1).fontSet); var currVal_3 = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 1).inline; var currVal_4 = (((_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 1).color !== "primary") && (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 1).color !== "accent")) && (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 1).color !== "warn")); _ck(_v, 0, 0, currVal_0, currVal_1, currVal_2, currVal_3, currVal_4); }); }
+var MatIconNgFactory = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵccf"]("mat-icon", _angular_material_icon__WEBPACK_IMPORTED_MODULE_1__["MatIcon"], View_MatIcon_Host_0, { color: "color", inline: "inline", svgIcon: "svgIcon", fontSet: "fontSet", fontIcon: "fontIcon" }, {}, ["*"]);
 
 
 
@@ -75676,6 +76665,1624 @@ var customKeyboardEvent = {
 
 
 //# sourceMappingURL=ngx-mask.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/primeng/dialog/primeng-dialog.ngfactory.js":
+/*!*****************************************************************!*\
+  !*** ./node_modules/primeng/dialog/primeng-dialog.ngfactory.js ***!
+  \*****************************************************************/
+/*! exports provided: DialogModuleNgFactory, RenderType_Dialog, View_Dialog_0, View_Dialog_Host_0, DialogNgFactory */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DialogModuleNgFactory", function() { return DialogModuleNgFactory; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RenderType_Dialog", function() { return RenderType_Dialog; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "View_Dialog_0", function() { return View_Dialog_0; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "View_Dialog_Host_0", function() { return View_Dialog_Host_0; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DialogNgFactory", function() { return DialogNgFactory; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+/* harmony import */ var primeng_dialog__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! primeng/dialog */ "./node_modules/primeng/fesm2015/primeng-dialog.js");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm2015/common.js");
+/* harmony import */ var primeng_focustrap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! primeng/focustrap */ "./node_modules/primeng/fesm2015/primeng-focustrap.js");
+/* harmony import */ var primeng_ripple__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! primeng/ripple */ "./node_modules/primeng/fesm2015/primeng-ripple.js");
+/* harmony import */ var primeng_api__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! primeng/api */ "./node_modules/primeng/fesm2015/primeng-api.js");
+/**
+ * @fileoverview This file was generated by the Angular template compiler. Do not edit.
+ *
+ * @suppress {suspiciousCode,uselessCode,missingProperties,missingOverride,checkTypes,extraRequire}
+ * tslint:disable
+ */ 
+
+
+
+
+
+
+var DialogModuleNgFactory = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵcmf"](primeng_dialog__WEBPACK_IMPORTED_MODULE_1__["DialogModule"], [], function (_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmod"]([_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmpd"](512, _angular_core__WEBPACK_IMPORTED_MODULE_0__["ComponentFactoryResolver"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵCodegenComponentFactoryResolver"], [[8, []], [3, _angular_core__WEBPACK_IMPORTED_MODULE_0__["ComponentFactoryResolver"]], _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModuleRef"]]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmpd"](4608, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgLocalization"], _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgLocaleLocalization"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["LOCALE_ID"]]), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmpd"](1073742336, _angular_common__WEBPACK_IMPORTED_MODULE_2__["CommonModule"], _angular_common__WEBPACK_IMPORTED_MODULE_2__["CommonModule"], []), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmpd"](1073742336, primeng_focustrap__WEBPACK_IMPORTED_MODULE_3__["FocusTrapModule"], primeng_focustrap__WEBPACK_IMPORTED_MODULE_3__["FocusTrapModule"], []), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmpd"](1073742336, primeng_ripple__WEBPACK_IMPORTED_MODULE_4__["RippleModule"], primeng_ripple__WEBPACK_IMPORTED_MODULE_4__["RippleModule"], []), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmpd"](1073742336, primeng_api__WEBPACK_IMPORTED_MODULE_5__["SharedModule"], primeng_api__WEBPACK_IMPORTED_MODULE_5__["SharedModule"], []), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵmpd"](1073742336, primeng_dialog__WEBPACK_IMPORTED_MODULE_1__["DialogModule"], primeng_dialog__WEBPACK_IMPORTED_MODULE_1__["DialogModule"], [])]); });
+
+var styles_Dialog = [".p-dialog-mask{-ms-flex-align:center;-ms-flex-pack:center;align-items:center;background-color:rgba(0,0,0,0);display:-ms-flexbox;display:flex;height:100%;justify-content:center;left:0;pointer-events:none;position:fixed;top:0;transition-property:background-color;width:100%}.p-dialog,.p-dialog-mask.p-component-overlay{pointer-events:auto}.p-dialog{-ms-flex-direction:column;-ms-transform:scale(1);display:-ms-flexbox;display:flex;flex-direction:column;max-height:90%;position:relative;transform:scale(1)}.p-dialog-content{overflow-y:auto}.p-dialog-header{-ms-flex-align:center;-ms-flex-pack:justify;align-items:center;display:-ms-flexbox;display:flex;justify-content:space-between}.p-dialog-footer,.p-dialog-header{-ms-flex-negative:0;flex-shrink:0}.p-dialog .p-dialog-header-icon,.p-dialog .p-dialog-header-icons{-ms-flex-align:center;align-items:center;display:-ms-flexbox;display:flex}.p-dialog .p-dialog-header-icon{-ms-flex-pack:center;justify-content:center;overflow:hidden;position:relative}.p-dialog-mask.p-dialog-mask-leave{background-color:rgba(0,0,0,0)}.p-fluid .p-dialog-footer .p-button{width:auto}.p-dialog-bottom-left .p-dialog,.p-dialog-bottom-right .p-dialog,.p-dialog-bottom .p-dialog,.p-dialog-left .p-dialog,.p-dialog-right .p-dialog,.p-dialog-top-left .p-dialog,.p-dialog-top-right .p-dialog,.p-dialog-top .p-dialog{margin:.75rem;transform:translateZ(0)}.p-dialog-maximized{-ms-transform:none;height:100%;max-height:100%;transform:none;transition:none;width:100vw!important}.p-dialog-maximized .p-dialog-content{-ms-flex-positive:1;flex-grow:1}.p-dialog-left{-ms-flex-pack:start;justify-content:flex-start}.p-dialog-right{-ms-flex-pack:end;justify-content:flex-end}.p-dialog-top,.p-dialog-top-left{-ms-flex-align:start;align-items:flex-start}.p-dialog-top-left{-ms-flex-pack:start;justify-content:flex-start}.p-dialog-top-right{-ms-flex-align:start;-ms-flex-pack:end;align-items:flex-start;justify-content:flex-end}.p-dialog-bottom,.p-dialog-bottom-left{-ms-flex-align:end;align-items:flex-end}.p-dialog-bottom-left{-ms-flex-pack:start;justify-content:flex-start}.p-dialog-bottom-right{-ms-flex-align:end;-ms-flex-pack:end;align-items:flex-end;justify-content:flex-end}.p-dialog .p-resizable-handle{bottom:1px;cursor:se-resize;display:block;font-size:.1px;height:12px;position:absolute;right:1px;width:12px}.p-confirm-dialog .p-dialog-content{-ms-flex-align:center;align-items:center;display:-ms-flexbox;display:flex}"];
+var RenderType_Dialog = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵcrt"]({ encapsulation: 2, styles: styles_Dialog, data: { "animation": [{ type: 7, name: "animation", definitions: [{ type: 1, expr: "void => visible", animation: [{ type: 10, animation: { type: 8, animation: [{ type: 6, styles: { transform: "{{transform}}", opacity: 0 }, offset: null }, { type: 4, styles: null, timings: "{{transition}}" }], options: null }, options: null }], options: null }, { type: 1, expr: "visible => void", animation: [{ type: 10, animation: { type: 8, animation: [{ type: 4, styles: { type: 6, styles: { transform: "{{transform}}", opacity: 0 }, offset: null }, timings: "{{transition}}" }], options: null }, options: null }], options: null }], options: {} }] } });
+
+function View_Dialog_4(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 1, "span", [["class", "p-dialog-title"]], [[1, "id", 0]], null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵted"](1, null, ["", ""]))], null, function (_ck, _v) { var _co = _v.component; var currVal_0 = (_co.id + "-label"); _ck(_v, 0, 0, currVal_0); var currVal_1 = _co.header; _ck(_v, 1, 0, currVal_1); }); }
+function View_Dialog_5(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 1, "span", [["class", "p-dialog-title"]], [[1, "id", 0]], null, null, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵncd"](null, 0)], null, function (_ck, _v) { var _co = _v.component; var currVal_0 = (_co.id + "-label"); _ck(_v, 0, 0, currVal_0); }); }
+function View_Dialog_6(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 0, null, null, null, null, null, null, null))], null, null); }
+function View_Dialog_7(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 5, "button", [["pRipple", ""], ["tabindex", "-1"], ["type", "button"]], [[2, "p-ripple", null]], [[null, "click"], [null, "keydown.enter"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("click" === en)) {
+        var pd_0 = (_co.maximize() !== false);
+        ad = (pd_0 && ad);
+    } if (("keydown.enter" === en)) {
+        var pd_1 = (_co.maximize() !== false);
+        ad = (pd_1 && ad);
+    } return ad; }, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](1, 278528, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgClass"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["IterableDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["KeyValueDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"]], { ngClass: [0, "ngClass"] }, null), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵpod"](2, { "p-dialog-header-icon p-dialog-header-maximize p-link": 0 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](3, 4341760, null, 0, primeng_ripple__WEBPACK_IMPORTED_MODULE_4__["Ripple"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgZone"], [2, primeng_api__WEBPACK_IMPORTED_MODULE_5__["PrimeNGConfig"]]], null, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](4, 0, null, null, 1, "span", [["class", "p-dialog-header-maximize-icon"]], null, null, null, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](5, 278528, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgClass"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["IterableDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["KeyValueDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"]], { klass: [0, "klass"], ngClass: [1, "ngClass"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_1 = _ck(_v, 2, 0, true); _ck(_v, 1, 0, currVal_1); var currVal_2 = "p-dialog-header-maximize-icon"; var currVal_3 = (_co.maximized ? _co.minimizeIcon : _co.maximizeIcon); _ck(_v, 5, 0, currVal_2, currVal_3); }, function (_ck, _v) { var currVal_0 = true; _ck(_v, 0, 0, currVal_0); }); }
+function View_Dialog_8(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 5, "button", [["pRipple", ""], ["tabindex", "-1"], ["type", "button"]], [[2, "p-ripple", null]], [[null, "click"], [null, "keydown.enter"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("click" === en)) {
+        var pd_0 = (_co.close($event) !== false);
+        ad = (pd_0 && ad);
+    } if (("keydown.enter" === en)) {
+        var pd_1 = (_co.close($event) !== false);
+        ad = (pd_1 && ad);
+    } return ad; }, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](1, 278528, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgClass"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["IterableDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["KeyValueDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"]], { ngClass: [0, "ngClass"] }, null), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵpod"](2, { "p-dialog-header-icon p-dialog-header-close p-link": 0 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](3, 4341760, null, 0, primeng_ripple__WEBPACK_IMPORTED_MODULE_4__["Ripple"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgZone"], [2, primeng_api__WEBPACK_IMPORTED_MODULE_5__["PrimeNGConfig"]]], null, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](4, 0, null, null, 1, "span", [["class", "p-dialog-header-close-icon"]], null, null, null, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](5, 278528, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgClass"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["IterableDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["KeyValueDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"]], { klass: [0, "klass"], ngClass: [1, "ngClass"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_1 = _ck(_v, 2, 0, true); _ck(_v, 1, 0, currVal_1); var currVal_2 = "p-dialog-header-close-icon"; var currVal_3 = _co.closeIcon; _ck(_v, 5, 0, currVal_2, currVal_3); }, function (_ck, _v) { var currVal_0 = true; _ck(_v, 0, 0, currVal_0); }); }
+function View_Dialog_3(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, [[1, 0], ["titlebar", 1]], null, 11, "div", [["class", "p-dialog-header"]], null, [[null, "mousedown"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("mousedown" === en)) {
+        var pd_0 = (_co.initDrag($event) !== false);
+        ad = (pd_0 && ad);
+    } return ad; }, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_4)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](2, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_5)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](4, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_6)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](6, 540672, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgTemplateOutlet"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"]], { ngTemplateOutlet: [0, "ngTemplateOutlet"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](7, 0, null, null, 4, "div", [["class", "p-dialog-header-icons"]], null, null, null, null, null)), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_7)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](9, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_8)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](11, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.header; _ck(_v, 2, 0, currVal_0); var currVal_1 = _co.headerFacet; _ck(_v, 4, 0, currVal_1); var currVal_2 = _co.headerTemplate; _ck(_v, 6, 0, currVal_2); var currVal_3 = _co.maximizable; _ck(_v, 9, 0, currVal_3); var currVal_4 = _co.closable; _ck(_v, 11, 0, currVal_4); }, null); }
+function View_Dialog_9(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 0, null, null, null, null, null, null, null))], null, null); }
+function View_Dialog_11(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 0, null, null, null, null, null, null, null))], null, null); }
+function View_Dialog_10(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, [[3, 0], ["footer", 1]], null, 3, "div", [["class", "p-dialog-footer"]], null, null, null, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵncd"](null, 2), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_11)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](3, 540672, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgTemplateOutlet"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"]], { ngTemplateOutlet: [0, "ngTemplateOutlet"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.footerTemplate; _ck(_v, 3, 0, currVal_0); }, null); }
+function View_Dialog_12(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 0, "div", [["class", "p-resizable-handle"], ["style", "z-index: 90;"]], null, [[null, "mousedown"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("mousedown" === en)) {
+        var pd_0 = (_co.initResize($event) !== false);
+        ad = (pd_0 && ad);
+    } return ad; }, null, null))], null, null); }
+function View_Dialog_2(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, [["container", 1]], null, 18, "div", [["pFocusTrap", ""], ["role", "dialog"]], [[24, "@animation", 0], [1, "aria-labelledby", 0]], [[null, "@animation.start"], [null, "@animation.done"], [null, "keydown.tab"], [null, "keydown.shift.tab"]], function (_v, en, $event) { var ad = true; var _co = _v.component; if (("keydown.tab" === en)) {
+        var pd_0 = (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 4).onkeydown($event) !== false);
+        ad = (pd_0 && ad);
+    } if (("keydown.shift.tab" === en)) {
+        var pd_1 = (_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵnov"](_v, 4).onkeydown($event) !== false);
+        ad = (pd_1 && ad);
+    } if (("@animation.start" === en)) {
+        var pd_2 = (_co.onAnimationStart($event) !== false);
+        ad = (pd_2 && ad);
+    } if (("@animation.done" === en)) {
+        var pd_3 = (_co.onAnimationEnd($event) !== false);
+        ad = (pd_3 && ad);
+    } return ad; }, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](1, 278528, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgClass"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["IterableDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["KeyValueDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"]], { klass: [0, "klass"], ngClass: [1, "ngClass"] }, null), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵpod"](2, { "p-dialog p-component": 0, "p-dialog-rtl": 1, "p-dialog-draggable": 2, "p-dialog-resizable": 3, "p-dialog-maximized": 4 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](3, 278528, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgStyle"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["KeyValueDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"]], { ngStyle: [0, "ngStyle"] }, null), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](4, 16384, null, 0, primeng_focustrap__WEBPACK_IMPORTED_MODULE_3__["FocusTrap"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"]], { pFocusTrapDisabled: [0, "pFocusTrapDisabled"] }, null), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵpod"](5, { transform: 0, transition: 1 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵpod"](6, { value: 0, params: 1 }), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_3)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](8, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](9, 0, [[2, 0], ["content", 1]], null, 5, "div", [], null, null, null, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](10, 278528, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgClass"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["IterableDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["KeyValueDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"]], { klass: [0, "klass"], ngClass: [1, "ngClass"] }, null), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](11, 278528, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgStyle"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["KeyValueDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"]], { ngStyle: [0, "ngStyle"] }, null), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵncd"](null, 1), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_9)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](14, 540672, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgTemplateOutlet"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"]], { ngTemplateOutlet: [0, "ngTemplateOutlet"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_10)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](16, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_12)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](18, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_2 = _co.styleClass; var currVal_3 = _ck(_v, 2, 0, true, _co.rtl, _co.draggable, _co.resizable, _co.maximized); _ck(_v, 1, 0, currVal_2, currVal_3); var currVal_4 = _co.style; _ck(_v, 3, 0, currVal_4); var currVal_5 = (_co.focusTrap === false); _ck(_v, 4, 0, currVal_5); var currVal_6 = _co.showHeader; _ck(_v, 8, 0, currVal_6); var currVal_7 = _co.contentStyleClass; var currVal_8 = "p-dialog-content"; _ck(_v, 10, 0, currVal_7, currVal_8); var currVal_9 = _co.contentStyle; _ck(_v, 11, 0, currVal_9); var currVal_10 = _co.contentTemplate; _ck(_v, 14, 0, currVal_10); var currVal_11 = (_co.footerFacet || _co.footerTemplate); _ck(_v, 16, 0, currVal_11); var currVal_12 = _co.resizable; _ck(_v, 18, 0, currVal_12); }, function (_ck, _v) { var _co = _v.component; var currVal_0 = _ck(_v, 6, 0, "visible", _ck(_v, 5, 0, _co.transformOptions, _co.transitionOptions)); var currVal_1 = (_co.id + "-label"); _ck(_v, 0, 0, currVal_0, currVal_1); }); }
+function View_Dialog_1(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 4, "div", [], null, null, null, null, null)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](1, 278528, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgClass"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["IterableDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["KeyValueDiffers"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"]], { klass: [0, "klass"], ngClass: [1, "ngClass"] }, null), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵpod"](2, { "p-dialog-mask": 0, "p-component-overlay": 1, "p-dialog-mask-scrollblocker": 2, "p-dialog-left": 3, "p-dialog-right": 4, "p-dialog-top": 5, "p-dialog-top-left": 6, "p-dialog-top-right": 7, "p-dialog-bottom": 8, "p-dialog-bottom-left": 9, "p-dialog-bottom-right": 10 }), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_2)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](4, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.maskStyleClass; var currVal_1 = _ck(_v, 2, 1, [true, _co.modal, (_co.modal || _co.blockScroll), (_co.position === "left"), (_co.position === "right"), (_co.position === "top"), ((_co.position === "topleft") || (_co.position === "top-left")), ((_co.position === "topright") || (_co.position === "top-right")), (_co.position === "bottom"), ((_co.position === "bottomleft") || (_co.position === "bottom-left")), ((_co.position === "bottomright") || (_co.position === "bottom-right"))]); _ck(_v, 1, 0, currVal_0, currVal_1); var currVal_2 = _co.visible; _ck(_v, 4, 0, currVal_2); }, null); }
+function View_Dialog_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](2, [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](671088640, 1, { headerViewChild: 0 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](671088640, 2, { contentViewChild: 0 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](671088640, 3, { footerViewChild: 0 }), (_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵand"](16777216, null, null, 1, null, View_Dialog_1)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](4, 16384, null, 0, _angular_common__WEBPACK_IMPORTED_MODULE_2__["NgIf"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewContainerRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"]], { ngIf: [0, "ngIf"] }, null)], function (_ck, _v) { var _co = _v.component; var currVal_0 = _co.maskVisible; _ck(_v, 4, 0, currVal_0); }, null); }
+function View_Dialog_Host_0(_l) { return _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵvid"](0, [(_l()(), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵeld"](0, 0, null, null, 4, "p-dialog", [], null, null, null, View_Dialog_0, RenderType_Dialog)), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵdid"](1, 1228800, null, 3, primeng_dialog__WEBPACK_IMPORTED_MODULE_1__["Dialog"], [_angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgZone"], _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectorRef"]], null, null), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](603979776, 1, { headerFacet: 0 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](603979776, 2, { footerFacet: 0 }), _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵqud"](603979776, 3, { templates: 1 })], null, null); }
+var DialogNgFactory = _angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵccf"]("p-dialog", primeng_dialog__WEBPACK_IMPORTED_MODULE_1__["Dialog"], View_Dialog_Host_0, { header: "header", draggable: "draggable", resizable: "resizable", positionLeft: "positionLeft", positionTop: "positionTop", contentStyle: "contentStyle", contentStyleClass: "contentStyleClass", modal: "modal", closeOnEscape: "closeOnEscape", dismissableMask: "dismissableMask", rtl: "rtl", closable: "closable", responsive: "responsive", appendTo: "appendTo", styleClass: "styleClass", maskStyleClass: "maskStyleClass", showHeader: "showHeader", breakpoint: "breakpoint", blockScroll: "blockScroll", autoZIndex: "autoZIndex", baseZIndex: "baseZIndex", minX: "minX", minY: "minY", focusOnShow: "focusOnShow", maximizable: "maximizable", keepInViewport: "keepInViewport", focusTrap: "focusTrap", transitionOptions: "transitionOptions", closeIcon: "closeIcon", minimizeIcon: "minimizeIcon", maximizeIcon: "maximizeIcon", visible: "visible", style: "style", position: "position" }, { onShow: "onShow", onHide: "onHide", visibleChange: "visibleChange", onResizeInit: "onResizeInit", onResizeEnd: "onResizeEnd", onDragEnd: "onDragEnd" }, ["p-header", "*", "p-footer"]);
+
+
+
+/***/ }),
+
+/***/ "./node_modules/primeng/fesm2015/primeng-api.js":
+/*!******************************************************!*\
+  !*** ./node_modules/primeng/fesm2015/primeng-api.js ***!
+  \******************************************************/
+/*! exports provided: ConfirmationService, Footer, Header, MessageService, PrimeNGConfig, PrimeTemplate, SharedModule, TreeDragDropService */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConfirmationService", function() { return ConfirmationService; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Footer", function() { return Footer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Header", function() { return Header; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "MessageService", function() { return MessageService; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PrimeNGConfig", function() { return PrimeNGConfig; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PrimeTemplate", function() { return PrimeTemplate; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SharedModule", function() { return SharedModule; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TreeDragDropService", function() { return TreeDragDropService; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm2015/index.js");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm2015/common.js");
+
+
+
+
+class PrimeNGConfig {
+    constructor() {
+        this.ripple = false;
+    }
+}
+PrimeNGConfig.ɵprov = Object(_angular_core__WEBPACK_IMPORTED_MODULE_0__["ɵɵdefineInjectable"])({ factory: function PrimeNGConfig_Factory() { return new PrimeNGConfig(); }, token: PrimeNGConfig, providedIn: "root" });
+PrimeNGConfig.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"], args: [{ providedIn: 'root' },] }
+];
+
+class ConfirmationService {
+    constructor() {
+        this.requireConfirmationSource = new rxjs__WEBPACK_IMPORTED_MODULE_1__["Subject"]();
+        this.acceptConfirmationSource = new rxjs__WEBPACK_IMPORTED_MODULE_1__["Subject"]();
+        this.requireConfirmation$ = this.requireConfirmationSource.asObservable();
+        this.accept = this.acceptConfirmationSource.asObservable();
+    }
+    confirm(confirmation) {
+        this.requireConfirmationSource.next(confirmation);
+        return this;
+    }
+    close() {
+        this.requireConfirmationSource.next(null);
+        return this;
+    }
+    onAccept() {
+        this.acceptConfirmationSource.next();
+    }
+}
+ConfirmationService.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"] }
+];
+
+class MessageService {
+    constructor() {
+        this.messageSource = new rxjs__WEBPACK_IMPORTED_MODULE_1__["Subject"]();
+        this.clearSource = new rxjs__WEBPACK_IMPORTED_MODULE_1__["Subject"]();
+        this.messageObserver = this.messageSource.asObservable();
+        this.clearObserver = this.clearSource.asObservable();
+    }
+    add(message) {
+        if (message) {
+            this.messageSource.next(message);
+        }
+    }
+    addAll(messages) {
+        if (messages && messages.length) {
+            this.messageSource.next(messages);
+        }
+    }
+    clear(key) {
+        this.clearSource.next(key || null);
+    }
+}
+MessageService.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"] }
+];
+
+class Header {
+}
+Header.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"], args: [{
+                selector: 'p-header',
+                template: '<ng-content></ng-content>'
+            },] }
+];
+class Footer {
+}
+Footer.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"], args: [{
+                selector: 'p-footer',
+                template: '<ng-content></ng-content>'
+            },] }
+];
+class PrimeTemplate {
+    constructor(template) {
+        this.template = template;
+    }
+    getType() {
+        return this.name;
+    }
+}
+PrimeTemplate.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Directive"], args: [{
+                selector: '[pTemplate]',
+                host: {}
+            },] }
+];
+PrimeTemplate.ctorParameters = () => [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["TemplateRef"] }
+];
+PrimeTemplate.propDecorators = {
+    type: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    name: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"], args: ['pTemplate',] }]
+};
+class SharedModule {
+}
+SharedModule.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModule"], args: [{
+                imports: [_angular_common__WEBPACK_IMPORTED_MODULE_2__["CommonModule"]],
+                exports: [Header, Footer, PrimeTemplate],
+                declarations: [Header, Footer, PrimeTemplate]
+            },] }
+];
+
+class TreeDragDropService {
+    constructor() {
+        this.dragStartSource = new rxjs__WEBPACK_IMPORTED_MODULE_1__["Subject"]();
+        this.dragStopSource = new rxjs__WEBPACK_IMPORTED_MODULE_1__["Subject"]();
+        this.dragStart$ = this.dragStartSource.asObservable();
+        this.dragStop$ = this.dragStopSource.asObservable();
+    }
+    startDrag(event) {
+        this.dragStartSource.next(event);
+    }
+    stopDrag(event) {
+        this.dragStopSource.next(event);
+    }
+}
+TreeDragDropService.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Injectable"] }
+];
+
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=primeng-api.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/primeng/fesm2015/primeng-dialog.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/primeng/fesm2015/primeng-dialog.js ***!
+  \*********************************************************/
+/*! exports provided: Dialog, DialogModule */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Dialog", function() { return Dialog; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DialogModule", function() { return DialogModule; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+/* harmony import */ var _angular_animations__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/animations */ "./node_modules/@angular/animations/fesm2015/animations.js");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm2015/common.js");
+/* harmony import */ var primeng_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! primeng/dom */ "./node_modules/primeng/fesm2015/primeng-dom.js");
+/* harmony import */ var primeng_api__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! primeng/api */ "./node_modules/primeng/fesm2015/primeng-api.js");
+/* harmony import */ var primeng_focustrap__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! primeng/focustrap */ "./node_modules/primeng/fesm2015/primeng-focustrap.js");
+/* harmony import */ var primeng_ripple__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! primeng/ripple */ "./node_modules/primeng/fesm2015/primeng-ripple.js");
+
+
+
+
+
+
+
+
+let idx = 0;
+const showAnimation = Object(_angular_animations__WEBPACK_IMPORTED_MODULE_1__["animation"])([
+    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_1__["style"])({ transform: '{{transform}}', opacity: 0 }),
+    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_1__["animate"])('{{transition}}')
+]);
+const hideAnimation = Object(_angular_animations__WEBPACK_IMPORTED_MODULE_1__["animation"])([
+    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_1__["animate"])('{{transition}}', Object(_angular_animations__WEBPACK_IMPORTED_MODULE_1__["style"])({ transform: '{{transform}}', opacity: 0 }))
+]);
+class Dialog {
+    constructor(el, renderer, zone, cd) {
+        this.el = el;
+        this.renderer = renderer;
+        this.zone = zone;
+        this.cd = cd;
+        this.draggable = true;
+        this.resizable = true;
+        this.closeOnEscape = true;
+        this.closable = true;
+        this.showHeader = true;
+        this.blockScroll = false;
+        this.autoZIndex = true;
+        this.baseZIndex = 0;
+        this.minX = 0;
+        this.minY = 0;
+        this.focusOnShow = true;
+        this.keepInViewport = true;
+        this.focusTrap = true;
+        this.transitionOptions = '150ms cubic-bezier(0, 0, 0.2, 1)';
+        this.closeIcon = 'pi pi-times';
+        this.minimizeIcon = 'pi pi-window-minimize';
+        this.maximizeIcon = 'pi pi-window-maximize';
+        this.onShow = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        this.onHide = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        this.visibleChange = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        this.onResizeInit = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        this.onResizeEnd = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        this.onDragEnd = new _angular_core__WEBPACK_IMPORTED_MODULE_0__["EventEmitter"]();
+        this.id = `p-dialog-${idx++}`;
+        this._style = {};
+        this._position = "center";
+        this.transformOptions = "scale(0.7)";
+    }
+    get positionLeft() {
+        return 0;
+    }
+    ;
+    set positionLeft(_positionLeft) {
+        console.log("positionLeft property is deprecated.");
+    }
+    get positionTop() {
+        return 0;
+    }
+    ;
+    set positionTop(_positionTop) {
+        console.log("positionTop property is deprecated.");
+    }
+    get responsive() {
+        return false;
+    }
+    ;
+    set responsive(_responsive) {
+        console.log("Responsive property is deprecated.");
+    }
+    get breakpoint() {
+        return 649;
+    }
+    ;
+    set breakpoint(_breakpoint) {
+        console.log("Breakpoint property is not utilized and deprecated, use CSS media queries instead.");
+    }
+    ngAfterContentInit() {
+        this.templates.forEach((item) => {
+            switch (item.getType()) {
+                case 'header':
+                    this.headerTemplate = item.template;
+                    break;
+                case 'content':
+                    this.contentTemplate = item.template;
+                    break;
+                case 'footer':
+                    this.footerTemplate = item.template;
+                    break;
+                default:
+                    this.contentTemplate = item.template;
+                    break;
+            }
+        });
+    }
+    get visible() {
+        return this._visible;
+    }
+    set visible(value) {
+        this._visible = value;
+        if (this._visible && !this.maskVisible) {
+            this.maskVisible = true;
+        }
+    }
+    get style() {
+        return this._style;
+    }
+    set style(value) {
+        if (value) {
+            this._style = Object.assign({}, value);
+            this.originalStyle = value;
+        }
+    }
+    get position() {
+        return this._position;
+    }
+    ;
+    set position(value) {
+        this._position = value;
+        switch (value) {
+            case 'topleft':
+            case 'bottomleft':
+            case 'left':
+                this.transformOptions = "translate3d(-100%, 0px, 0px)";
+                break;
+            case 'topright':
+            case 'bottomright':
+            case 'right':
+                this.transformOptions = "translate3d(100%, 0px, 0px)";
+                break;
+            case 'bottom':
+                this.transformOptions = "translate3d(0px, 100%, 0px)";
+                break;
+            case 'top':
+                this.transformOptions = "translate3d(0px, -100%, 0px)";
+                break;
+            default:
+                this.transformOptions = "scale(0.7)";
+                break;
+        }
+    }
+    focus() {
+        let focusable = primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].findSingle(this.container, '[autofocus]');
+        if (focusable) {
+            this.zone.runOutsideAngular(() => {
+                setTimeout(() => focusable.focus(), 5);
+            });
+        }
+    }
+    close(event) {
+        this.visibleChange.emit(false);
+        event.preventDefault();
+    }
+    enableModality() {
+        if (this.closable && this.dismissableMask) {
+            this.maskClickListener = this.renderer.listen(this.wrapper, 'click', (event) => {
+                if (this.wrapper && this.wrapper.isSameNode(event.target)) {
+                    this.close(event);
+                }
+            });
+        }
+        if (this.modal) {
+            primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].addClass(document.body, 'p-overflow-hidden');
+        }
+    }
+    disableModality() {
+        if (this.wrapper) {
+            if (this.dismissableMask) {
+                this.unbindMaskClickListener();
+            }
+            if (this.modal) {
+                primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].removeClass(document.body, 'p-overflow-hidden');
+            }
+            if (!this.cd.destroyed) {
+                this.cd.detectChanges();
+            }
+        }
+    }
+    maximize() {
+        this.maximized = !this.maximized;
+        if (!this.modal && !this.blockScroll) {
+            if (this.maximized)
+                primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].addClass(document.body, 'p-overflow-hidden');
+            else
+                primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].removeClass(document.body, 'p-overflow-hidden');
+        }
+    }
+    unbindMaskClickListener() {
+        if (this.maskClickListener) {
+            this.maskClickListener();
+            this.maskClickListener = null;
+        }
+    }
+    moveOnTop() {
+        if (this.autoZIndex) {
+            this.container.style.zIndex = String(this.baseZIndex + (++primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].zindex));
+            this.wrapper.style.zIndex = String(this.baseZIndex + (primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].zindex - 1));
+        }
+    }
+    initDrag(event) {
+        if (primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].hasClass(event.target, 'p-dialog-header-icon') || primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].hasClass(event.target.parentElement, 'p-dialog-header-icon')) {
+            return;
+        }
+        if (this.draggable) {
+            this.dragging = true;
+            this.lastPageX = event.pageX;
+            this.lastPageY = event.pageY;
+            this.container.style.margin = '0';
+            primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].addClass(document.body, 'p-unselectable-text');
+        }
+    }
+    onKeydown(event) {
+        if (this.focusTrap) {
+            if (event.which === 9) {
+                event.preventDefault();
+                let focusableElements = primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].getFocusableElements(this.container);
+                if (focusableElements && focusableElements.length > 0) {
+                    if (!focusableElements[0].ownerDocument.activeElement) {
+                        focusableElements[0].focus();
+                    }
+                    else {
+                        let focusedIndex = focusableElements.indexOf(focusableElements[0].ownerDocument.activeElement);
+                        if (event.shiftKey) {
+                            if (focusedIndex == -1 || focusedIndex === 0)
+                                focusableElements[focusableElements.length - 1].focus();
+                            else
+                                focusableElements[focusedIndex - 1].focus();
+                        }
+                        else {
+                            if (focusedIndex == -1 || focusedIndex === (focusableElements.length - 1))
+                                focusableElements[0].focus();
+                            else
+                                focusableElements[focusedIndex + 1].focus();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    onDrag(event) {
+        if (this.dragging) {
+            let containerWidth = primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].getOuterWidth(this.container);
+            let containerHeight = primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].getOuterHeight(this.container);
+            let deltaX = event.pageX - this.lastPageX;
+            let deltaY = event.pageY - this.lastPageY;
+            let offset = primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].getOffset(this.container);
+            let leftPos = offset.left + deltaX;
+            let topPos = offset.top + deltaY;
+            let viewport = primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].getViewport();
+            this.container.style.position = 'fixed';
+            if (this.keepInViewport) {
+                if (leftPos >= this.minX && (leftPos + containerWidth) < viewport.width) {
+                    this._style.left = leftPos + 'px';
+                    this.lastPageX = event.pageX;
+                    this.container.style.left = leftPos + 'px';
+                }
+                if (topPos >= this.minY && (topPos + containerHeight) < viewport.height) {
+                    this._style.top = topPos + 'px';
+                    this.lastPageY = event.pageY;
+                    this.container.style.top = topPos + 'px';
+                }
+            }
+            else {
+                this.lastPageX = event.pageX;
+                this.container.style.left = leftPos + 'px';
+                this.lastPageY = event.pageY;
+                this.container.style.top = topPos + 'px';
+            }
+        }
+    }
+    endDrag(event) {
+        if (this.dragging) {
+            this.dragging = false;
+            primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].removeClass(document.body, 'p-unselectable-text');
+            this.cd.detectChanges();
+            this.onDragEnd.emit(event);
+        }
+    }
+    resetPosition() {
+        this.container.style.position = '';
+        this.container.style.left = '';
+        this.container.style.top = '';
+        this.container.style.margin = '';
+    }
+    //backward compatibility
+    center() {
+        this.resetPosition();
+    }
+    initResize(event) {
+        if (this.resizable) {
+            this.resizing = true;
+            this.lastPageX = event.pageX;
+            this.lastPageY = event.pageY;
+            primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].addClass(document.body, 'p-unselectable-text');
+            this.onResizeInit.emit(event);
+        }
+    }
+    onResize(event) {
+        if (this.resizing) {
+            let deltaX = event.pageX - this.lastPageX;
+            let deltaY = event.pageY - this.lastPageY;
+            let containerWidth = primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].getOuterWidth(this.container);
+            let containerHeight = primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].getOuterHeight(this.container);
+            let contentHeight = primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].getOuterHeight(this.contentViewChild.nativeElement);
+            let newWidth = containerWidth + deltaX;
+            let newHeight = containerHeight + deltaY;
+            let minWidth = this.container.style.minWidth;
+            let minHeight = this.container.style.minHeight;
+            let offset = primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].getOffset(this.container);
+            let viewport = primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].getViewport();
+            let hasBeenDragged = !parseInt(this.container.style.top) || !parseInt(this.container.style.left);
+            if (hasBeenDragged) {
+                newWidth += deltaX;
+                newHeight += deltaY;
+            }
+            if ((!minWidth || newWidth > parseInt(minWidth)) && (offset.left + newWidth) < viewport.width) {
+                this._style.width = newWidth + 'px';
+                this.container.style.width = this._style.width;
+            }
+            if ((!minHeight || newHeight > parseInt(minHeight)) && (offset.top + newHeight) < viewport.height) {
+                this.contentViewChild.nativeElement.style.height = contentHeight + newHeight - containerHeight + 'px';
+                if (this._style.height) {
+                    this._style.height = newHeight + 'px';
+                    this.container.style.height = this._style.height;
+                }
+            }
+            this.lastPageX = event.pageX;
+            this.lastPageY = event.pageY;
+        }
+    }
+    resizeEnd(event) {
+        if (this.resizing) {
+            this.resizing = false;
+            primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].removeClass(document.body, 'p-unselectable-text');
+            this.onResizeEnd.emit(event);
+        }
+    }
+    bindGlobalListeners() {
+        if (this.draggable) {
+            this.bindDocumentDragListener();
+            this.bindDocumentDragEndListener();
+        }
+        if (this.resizable) {
+            this.bindDocumentResizeListeners();
+        }
+        if (this.closeOnEscape && this.closable) {
+            this.bindDocumentEscapeListener();
+        }
+    }
+    unbindGlobalListeners() {
+        this.unbindDocumentDragListener();
+        this.unbindDocumentDragEndListener();
+        this.unbindDocumentResizeListeners();
+        this.unbindDocumentEscapeListener();
+    }
+    bindDocumentDragListener() {
+        this.zone.runOutsideAngular(() => {
+            this.documentDragListener = this.onDrag.bind(this);
+            window.document.addEventListener('mousemove', this.documentDragListener);
+        });
+    }
+    unbindDocumentDragListener() {
+        if (this.documentDragListener) {
+            window.document.removeEventListener('mousemove', this.documentDragListener);
+            this.documentDragListener = null;
+        }
+    }
+    bindDocumentDragEndListener() {
+        this.zone.runOutsideAngular(() => {
+            this.documentDragEndListener = this.endDrag.bind(this);
+            window.document.addEventListener('mouseup', this.documentDragEndListener);
+        });
+    }
+    unbindDocumentDragEndListener() {
+        if (this.documentDragEndListener) {
+            window.document.removeEventListener('mouseup', this.documentDragEndListener);
+            this.documentDragEndListener = null;
+        }
+    }
+    bindDocumentResizeListeners() {
+        this.zone.runOutsideAngular(() => {
+            this.documentResizeListener = this.onResize.bind(this);
+            this.documentResizeEndListener = this.resizeEnd.bind(this);
+            window.document.addEventListener('mousemove', this.documentResizeListener);
+            window.document.addEventListener('mouseup', this.documentResizeEndListener);
+        });
+    }
+    unbindDocumentResizeListeners() {
+        if (this.documentResizeListener && this.documentResizeEndListener) {
+            window.document.removeEventListener('mousemove', this.documentResizeListener);
+            window.document.removeEventListener('mouseup', this.documentResizeEndListener);
+            this.documentResizeListener = null;
+            this.documentResizeEndListener = null;
+        }
+    }
+    bindDocumentEscapeListener() {
+        const documentTarget = this.el ? this.el.nativeElement.ownerDocument : 'document';
+        this.documentEscapeListener = this.renderer.listen(documentTarget, 'keydown', (event) => {
+            if (event.which == 27) {
+                if (parseInt(this.container.style.zIndex) === (primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].zindex + this.baseZIndex)) {
+                    this.close(event);
+                }
+            }
+        });
+    }
+    unbindDocumentEscapeListener() {
+        if (this.documentEscapeListener) {
+            this.documentEscapeListener();
+            this.documentEscapeListener = null;
+        }
+    }
+    appendContainer() {
+        if (this.appendTo) {
+            if (this.appendTo === 'body')
+                document.body.appendChild(this.wrapper);
+            else
+                primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].appendChild(this.wrapper, this.appendTo);
+        }
+    }
+    restoreAppend() {
+        if (this.container && this.appendTo) {
+            this.el.nativeElement.appendChild(this.wrapper);
+        }
+    }
+    onAnimationStart(event) {
+        switch (event.toState) {
+            case 'visible':
+                this.container = event.element;
+                this.wrapper = this.container.parentElement;
+                this.onShow.emit({});
+                this.appendContainer();
+                this.moveOnTop();
+                this.bindGlobalListeners();
+                if (this.modal) {
+                    this.enableModality();
+                }
+                if (!this.modal && this.blockScroll) {
+                    primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].addClass(document.body, 'p-overflow-hidden');
+                }
+                if (this.focusOnShow) {
+                    this.focus();
+                }
+                break;
+        }
+    }
+    onAnimationEnd(event) {
+        switch (event.toState) {
+            case 'void':
+                this.onContainerDestroy();
+                this.onHide.emit({});
+                break;
+        }
+    }
+    onContainerDestroy() {
+        this.unbindGlobalListeners();
+        this.dragging = false;
+        this.maskVisible = false;
+        if (this.maximized) {
+            primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].removeClass(document.body, 'p-overflow-hidden');
+            this.maximized = false;
+        }
+        if (this.modal) {
+            this.disableModality();
+        }
+        if (this.blockScroll) {
+            primeng_dom__WEBPACK_IMPORTED_MODULE_3__["DomHandler"].removeClass(document.body, 'p-overflow-hidden');
+        }
+        this.container = null;
+        this.wrapper = null;
+        this._style = this.originalStyle ? Object.assign({}, this.originalStyle) : {};
+    }
+    ngOnDestroy() {
+        if (this.container) {
+            this.restoreAppend();
+            this.onContainerDestroy();
+        }
+    }
+}
+Dialog.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Component"], args: [{
+                selector: 'p-dialog',
+                template: `
+        <div *ngIf="maskVisible" [class]="maskStyleClass"
+            [ngClass]="{'p-dialog-mask': true, 'p-component-overlay': this.modal, 'p-dialog-mask-scrollblocker': this.modal || this.blockScroll,
+                'p-dialog-left': position === 'left',
+                'p-dialog-right': position === 'right',
+                'p-dialog-top': position === 'top',
+                'p-dialog-top-left': position === 'topleft' || position === 'top-left',
+                'p-dialog-top-right': position === 'topright' || position === 'top-right',
+                'p-dialog-bottom': position === 'bottom',
+                'p-dialog-bottom-left': position === 'bottomleft' || position === 'bottom-left',
+                'p-dialog-bottom-right': position === 'bottomright' || position === 'bottom-right'}">
+            <div #container [ngClass]="{'p-dialog p-component':true, 'p-dialog-rtl':rtl,'p-dialog-draggable':draggable,'p-dialog-resizable':resizable, 'p-dialog-maximized': maximized}"
+                [ngStyle]="style" [class]="styleClass" *ngIf="visible" pFocusTrap [pFocusTrapDisabled]="focusTrap === false"
+                [@animation]="{value: 'visible', params: {transform: transformOptions, transition: transitionOptions}}" (@animation.start)="onAnimationStart($event)" (@animation.done)="onAnimationEnd($event)" role="dialog" [attr.aria-labelledby]="id + '-label'">
+                <div #titlebar class="p-dialog-header" (mousedown)="initDrag($event)" *ngIf="showHeader">
+                    <span [attr.id]="id + '-label'" class="p-dialog-title" *ngIf="header">{{header}}</span>
+                    <span [attr.id]="id + '-label'" class="p-dialog-title" *ngIf="headerFacet">
+                        <ng-content select="p-header"></ng-content>
+                    </span>
+                    <ng-container *ngTemplateOutlet="headerTemplate"></ng-container>
+                    <div class="p-dialog-header-icons">
+                        <button *ngIf="maximizable" type="button" [ngClass]="{'p-dialog-header-icon p-dialog-header-maximize p-link':true}" (click)="maximize()" (keydown.enter)="maximize()" tabindex="-1" pRipple>
+                            <span class="p-dialog-header-maximize-icon" [ngClass]="maximized ? minimizeIcon : maximizeIcon"></span>
+                        </button>
+                        <button *ngIf="closable" type="button" [ngClass]="{'p-dialog-header-icon p-dialog-header-close p-link':true}" (click)="close($event)" (keydown.enter)="close($event)" tabindex="-1" pRipple>
+                            <span class="p-dialog-header-close-icon" [ngClass]="closeIcon"></span>
+                        </button>
+                    </div>
+                </div>
+                <div #content [ngClass]="'p-dialog-content'" [ngStyle]="contentStyle" [class]="contentStyleClass">
+                    <ng-content></ng-content>
+                    <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
+                </div>
+                <div #footer class="p-dialog-footer" *ngIf="footerFacet || footerTemplate">
+                    <ng-content select="p-footer"></ng-content>
+                    <ng-container *ngTemplateOutlet="footerTemplate"></ng-container>
+                </div>
+                <div *ngIf="resizable" class="p-resizable-handle" style="z-index: 90;" (mousedown)="initResize($event)"></div>
+            </div>
+        </div>
+    `,
+                animations: [
+                    Object(_angular_animations__WEBPACK_IMPORTED_MODULE_1__["trigger"])('animation', [
+                        Object(_angular_animations__WEBPACK_IMPORTED_MODULE_1__["transition"])('void => visible', [
+                            Object(_angular_animations__WEBPACK_IMPORTED_MODULE_1__["useAnimation"])(showAnimation)
+                        ]),
+                        Object(_angular_animations__WEBPACK_IMPORTED_MODULE_1__["transition"])('visible => void', [
+                            Object(_angular_animations__WEBPACK_IMPORTED_MODULE_1__["useAnimation"])(hideAnimation)
+                        ])
+                    ])
+                ],
+                changeDetection: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectionStrategy"].OnPush,
+                encapsulation: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewEncapsulation"].None,
+                styles: [".p-dialog-mask{-ms-flex-align:center;-ms-flex-pack:center;align-items:center;background-color:rgba(0,0,0,0);display:-ms-flexbox;display:flex;height:100%;justify-content:center;left:0;pointer-events:none;position:fixed;top:0;transition-property:background-color;width:100%}.p-dialog,.p-dialog-mask.p-component-overlay{pointer-events:auto}.p-dialog{-ms-flex-direction:column;-ms-transform:scale(1);display:-ms-flexbox;display:flex;flex-direction:column;max-height:90%;position:relative;transform:scale(1)}.p-dialog-content{overflow-y:auto}.p-dialog-header{-ms-flex-align:center;-ms-flex-pack:justify;align-items:center;display:-ms-flexbox;display:flex;justify-content:space-between}.p-dialog-footer,.p-dialog-header{-ms-flex-negative:0;flex-shrink:0}.p-dialog .p-dialog-header-icon,.p-dialog .p-dialog-header-icons{-ms-flex-align:center;align-items:center;display:-ms-flexbox;display:flex}.p-dialog .p-dialog-header-icon{-ms-flex-pack:center;justify-content:center;overflow:hidden;position:relative}.p-dialog-mask.p-dialog-mask-leave{background-color:rgba(0,0,0,0)}.p-fluid .p-dialog-footer .p-button{width:auto}.p-dialog-bottom-left .p-dialog,.p-dialog-bottom-right .p-dialog,.p-dialog-bottom .p-dialog,.p-dialog-left .p-dialog,.p-dialog-right .p-dialog,.p-dialog-top-left .p-dialog,.p-dialog-top-right .p-dialog,.p-dialog-top .p-dialog{margin:.75rem;transform:translateZ(0)}.p-dialog-maximized{-ms-transform:none;height:100%;max-height:100%;transform:none;transition:none;width:100vw!important}.p-dialog-maximized .p-dialog-content{-ms-flex-positive:1;flex-grow:1}.p-dialog-left{-ms-flex-pack:start;justify-content:flex-start}.p-dialog-right{-ms-flex-pack:end;justify-content:flex-end}.p-dialog-top,.p-dialog-top-left{-ms-flex-align:start;align-items:flex-start}.p-dialog-top-left{-ms-flex-pack:start;justify-content:flex-start}.p-dialog-top-right{-ms-flex-align:start;-ms-flex-pack:end;align-items:flex-start;justify-content:flex-end}.p-dialog-bottom,.p-dialog-bottom-left{-ms-flex-align:end;align-items:flex-end}.p-dialog-bottom-left{-ms-flex-pack:start;justify-content:flex-start}.p-dialog-bottom-right{-ms-flex-align:end;-ms-flex-pack:end;align-items:flex-end;justify-content:flex-end}.p-dialog .p-resizable-handle{bottom:1px;cursor:se-resize;display:block;font-size:.1px;height:12px;position:absolute;right:1px;width:12px}.p-confirm-dialog .p-dialog-content{-ms-flex-align:center;align-items:center;display:-ms-flexbox;display:flex}"]
+            },] }
+];
+Dialog.ctorParameters = () => [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"] },
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Renderer2"] },
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgZone"] },
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ChangeDetectorRef"] }
+];
+Dialog.propDecorators = {
+    header: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    draggable: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    resizable: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    positionLeft: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    positionTop: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    contentStyle: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    contentStyleClass: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    modal: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    closeOnEscape: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    dismissableMask: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    rtl: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    closable: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    responsive: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    appendTo: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    styleClass: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    maskStyleClass: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    showHeader: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    breakpoint: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    blockScroll: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    autoZIndex: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    baseZIndex: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    minX: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    minY: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    focusOnShow: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    maximizable: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    keepInViewport: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    focusTrap: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    transitionOptions: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    closeIcon: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    minimizeIcon: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    maximizeIcon: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    headerFacet: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ContentChild"], args: [primeng_api__WEBPACK_IMPORTED_MODULE_4__["Header"],] }],
+    footerFacet: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ContentChild"], args: [primeng_api__WEBPACK_IMPORTED_MODULE_4__["Footer"],] }],
+    templates: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ContentChildren"], args: [primeng_api__WEBPACK_IMPORTED_MODULE_4__["PrimeTemplate"],] }],
+    headerViewChild: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"], args: ['titlebar',] }],
+    contentViewChild: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"], args: ['content',] }],
+    footerViewChild: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ViewChild"], args: ['footer',] }],
+    onShow: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"] }],
+    onHide: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"] }],
+    visibleChange: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"] }],
+    onResizeInit: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"] }],
+    onResizeEnd: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"] }],
+    onDragEnd: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Output"] }],
+    visible: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    style: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    position: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }]
+};
+class DialogModule {
+}
+DialogModule.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModule"], args: [{
+                imports: [_angular_common__WEBPACK_IMPORTED_MODULE_2__["CommonModule"], primeng_focustrap__WEBPACK_IMPORTED_MODULE_5__["FocusTrapModule"], primeng_ripple__WEBPACK_IMPORTED_MODULE_6__["RippleModule"]],
+                exports: [Dialog, primeng_api__WEBPACK_IMPORTED_MODULE_4__["SharedModule"]],
+                declarations: [Dialog]
+            },] }
+];
+
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=primeng-dialog.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/primeng/fesm2015/primeng-dom.js":
+/*!******************************************************!*\
+  !*** ./node_modules/primeng/fesm2015/primeng-dom.js ***!
+  \******************************************************/
+/*! exports provided: ConnectedOverlayScrollHandler, DomHandler */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ConnectedOverlayScrollHandler", function() { return ConnectedOverlayScrollHandler; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "DomHandler", function() { return DomHandler; });
+/**
+ * @dynamic is for runtime initializing DomHandler.browser
+ *
+ * If delete below comment, we can see this error message:
+ *  Metadata collected contains an error that will be reported at runtime:
+ *  Only initialized variables and constants can be referenced
+ *  because the value of this variable is needed by the template compiler.
+ */
+// @dynamic
+class DomHandler {
+    static addClass(element, className) {
+        if (element.classList)
+            element.classList.add(className);
+        else
+            element.className += ' ' + className;
+    }
+    static addMultipleClasses(element, className) {
+        if (element.classList) {
+            let styles = className.split(' ');
+            for (let i = 0; i < styles.length; i++) {
+                element.classList.add(styles[i]);
+            }
+        }
+        else {
+            let styles = className.split(' ');
+            for (let i = 0; i < styles.length; i++) {
+                element.className += ' ' + styles[i];
+            }
+        }
+    }
+    static removeClass(element, className) {
+        if (element.classList)
+            element.classList.remove(className);
+        else
+            element.className = element.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+    }
+    static hasClass(element, className) {
+        if (element.classList)
+            return element.classList.contains(className);
+        else
+            return new RegExp('(^| )' + className + '( |$)', 'gi').test(element.className);
+    }
+    static siblings(element) {
+        return Array.prototype.filter.call(element.parentNode.children, function (child) {
+            return child !== element;
+        });
+    }
+    static find(element, selector) {
+        return Array.from(element.querySelectorAll(selector));
+    }
+    static findSingle(element, selector) {
+        if (element) {
+            return element.querySelector(selector);
+        }
+        return null;
+    }
+    static index(element) {
+        let children = element.parentNode.childNodes;
+        let num = 0;
+        for (var i = 0; i < children.length; i++) {
+            if (children[i] == element)
+                return num;
+            if (children[i].nodeType == 1)
+                num++;
+        }
+        return -1;
+    }
+    static indexWithinGroup(element, attributeName) {
+        let children = element.parentNode ? element.parentNode.childNodes : [];
+        let num = 0;
+        for (var i = 0; i < children.length; i++) {
+            if (children[i] == element)
+                return num;
+            if (children[i].attributes && children[i].attributes[attributeName] && children[i].nodeType == 1)
+                num++;
+        }
+        return -1;
+    }
+    static relativePosition(element, target) {
+        let elementDimensions = element.offsetParent ? { width: element.offsetWidth, height: element.offsetHeight } : this.getHiddenElementDimensions(element);
+        const targetHeight = target.offsetHeight;
+        const targetOffset = target.getBoundingClientRect();
+        const viewport = this.getViewport();
+        let top, left;
+        if ((targetOffset.top + targetHeight + elementDimensions.height) > viewport.height) {
+            top = -1 * (elementDimensions.height);
+            element.style.transformOrigin = 'bottom';
+            if (targetOffset.top + top < 0) {
+                top = -1 * targetOffset.top;
+            }
+        }
+        else {
+            top = targetHeight;
+            element.style.transformOrigin = 'top';
+        }
+        if (elementDimensions.width > viewport.width) {
+            // element wider then viewport and cannot fit on screen (align at left side of viewport)
+            left = targetOffset.left * -1;
+        }
+        else if ((targetOffset.left + elementDimensions.width) > viewport.width) {
+            // element wider then viewport but can be fit on screen (align at right side of viewport)
+            left = (targetOffset.left + elementDimensions.width - viewport.width) * -1;
+        }
+        else {
+            // element fits on screen (align with target)
+            left = 0;
+        }
+        element.style.top = top + 'px';
+        element.style.left = left + 'px';
+    }
+    static absolutePosition(element, target) {
+        let elementDimensions = element.offsetParent ? { width: element.offsetWidth, height: element.offsetHeight } : this.getHiddenElementDimensions(element);
+        let elementOuterHeight = elementDimensions.height;
+        let elementOuterWidth = elementDimensions.width;
+        let targetOuterHeight = target.offsetHeight;
+        let targetOuterWidth = target.offsetWidth;
+        let targetOffset = target.getBoundingClientRect();
+        let windowScrollTop = this.getWindowScrollTop();
+        let windowScrollLeft = this.getWindowScrollLeft();
+        let viewport = this.getViewport();
+        let top, left;
+        if (targetOffset.top + targetOuterHeight + elementOuterHeight > viewport.height) {
+            top = targetOffset.top + windowScrollTop - elementOuterHeight;
+            element.style.transformOrigin = 'bottom';
+            if (top < 0) {
+                top = windowScrollTop;
+            }
+        }
+        else {
+            top = targetOuterHeight + targetOffset.top + windowScrollTop;
+            element.style.transformOrigin = 'top';
+        }
+        if (targetOffset.left + elementOuterWidth > viewport.width)
+            left = Math.max(0, targetOffset.left + windowScrollLeft + targetOuterWidth - elementOuterWidth);
+        else
+            left = targetOffset.left + windowScrollLeft;
+        element.style.top = top + 'px';
+        element.style.left = left + 'px';
+    }
+    static getParents(element, parents = []) {
+        return element['parentNode'] === null ? parents : this.getParents(element.parentNode, parents.concat([element.parentNode]));
+    }
+    static getScrollableParents(element) {
+        let scrollableParents = [];
+        if (element) {
+            let parents = this.getParents(element);
+            const overflowRegex = /(auto|scroll)/;
+            const overflowCheck = (node) => {
+                let styleDeclaration = window['getComputedStyle'](node, null);
+                return overflowRegex.test(styleDeclaration.getPropertyValue('overflow')) || overflowRegex.test(styleDeclaration.getPropertyValue('overflowX')) || overflowRegex.test(styleDeclaration.getPropertyValue('overflowY'));
+            };
+            for (let parent of parents) {
+                let scrollSelectors = parent.nodeType === 1 && parent.dataset['scrollselectors'];
+                if (scrollSelectors) {
+                    let selectors = scrollSelectors.split(',');
+                    for (let selector of selectors) {
+                        let el = this.findSingle(parent, selector);
+                        if (el && overflowCheck(el)) {
+                            scrollableParents.push(el);
+                        }
+                    }
+                }
+                if (parent.nodeType === 9 || overflowCheck(parent)) {
+                    scrollableParents.push(parent);
+                }
+            }
+        }
+        return scrollableParents;
+    }
+    static getHiddenElementOuterHeight(element) {
+        element.style.visibility = 'hidden';
+        element.style.display = 'block';
+        let elementHeight = element.offsetHeight;
+        element.style.display = 'none';
+        element.style.visibility = 'visible';
+        return elementHeight;
+    }
+    static getHiddenElementOuterWidth(element) {
+        element.style.visibility = 'hidden';
+        element.style.display = 'block';
+        let elementWidth = element.offsetWidth;
+        element.style.display = 'none';
+        element.style.visibility = 'visible';
+        return elementWidth;
+    }
+    static getHiddenElementDimensions(element) {
+        let dimensions = {};
+        element.style.visibility = 'hidden';
+        element.style.display = 'block';
+        dimensions.width = element.offsetWidth;
+        dimensions.height = element.offsetHeight;
+        element.style.display = 'none';
+        element.style.visibility = 'visible';
+        return dimensions;
+    }
+    static scrollInView(container, item) {
+        let borderTopValue = getComputedStyle(container).getPropertyValue('borderTopWidth');
+        let borderTop = borderTopValue ? parseFloat(borderTopValue) : 0;
+        let paddingTopValue = getComputedStyle(container).getPropertyValue('paddingTop');
+        let paddingTop = paddingTopValue ? parseFloat(paddingTopValue) : 0;
+        let containerRect = container.getBoundingClientRect();
+        let itemRect = item.getBoundingClientRect();
+        let offset = (itemRect.top + document.body.scrollTop) - (containerRect.top + document.body.scrollTop) - borderTop - paddingTop;
+        let scroll = container.scrollTop;
+        let elementHeight = container.clientHeight;
+        let itemHeight = this.getOuterHeight(item);
+        if (offset < 0) {
+            container.scrollTop = scroll + offset;
+        }
+        else if ((offset + itemHeight) > elementHeight) {
+            container.scrollTop = scroll + offset - elementHeight + itemHeight;
+        }
+    }
+    static fadeIn(element, duration) {
+        element.style.opacity = 0;
+        let last = +new Date();
+        let opacity = 0;
+        let tick = function () {
+            opacity = +element.style.opacity.replace(",", ".") + (new Date().getTime() - last) / duration;
+            element.style.opacity = opacity;
+            last = +new Date();
+            if (+opacity < 1) {
+                (window.requestAnimationFrame && requestAnimationFrame(tick)) || setTimeout(tick, 16);
+            }
+        };
+        tick();
+    }
+    static fadeOut(element, ms) {
+        var opacity = 1, interval = 50, duration = ms, gap = interval / duration;
+        let fading = setInterval(() => {
+            opacity = opacity - gap;
+            if (opacity <= 0) {
+                opacity = 0;
+                clearInterval(fading);
+            }
+            element.style.opacity = opacity;
+        }, interval);
+    }
+    static getWindowScrollTop() {
+        let doc = document.documentElement;
+        return (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+    }
+    static getWindowScrollLeft() {
+        let doc = document.documentElement;
+        return (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0);
+    }
+    static matches(element, selector) {
+        var p = Element.prototype;
+        var f = p['matches'] || p.webkitMatchesSelector || p['mozMatchesSelector'] || p['msMatchesSelector'] || function (s) {
+            return [].indexOf.call(document.querySelectorAll(s), this) !== -1;
+        };
+        return f.call(element, selector);
+    }
+    static getOuterWidth(el, margin) {
+        let width = el.offsetWidth;
+        if (margin) {
+            let style = getComputedStyle(el);
+            width += parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+        }
+        return width;
+    }
+    static getHorizontalPadding(el) {
+        let style = getComputedStyle(el);
+        return parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    }
+    static getHorizontalMargin(el) {
+        let style = getComputedStyle(el);
+        return parseFloat(style.marginLeft) + parseFloat(style.marginRight);
+    }
+    static innerWidth(el) {
+        let width = el.offsetWidth;
+        let style = getComputedStyle(el);
+        width += parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+        return width;
+    }
+    static width(el) {
+        let width = el.offsetWidth;
+        let style = getComputedStyle(el);
+        width -= parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+        return width;
+    }
+    static getInnerHeight(el) {
+        let height = el.offsetHeight;
+        let style = getComputedStyle(el);
+        height += parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+        return height;
+    }
+    static getOuterHeight(el, margin) {
+        let height = el.offsetHeight;
+        if (margin) {
+            let style = getComputedStyle(el);
+            height += parseFloat(style.marginTop) + parseFloat(style.marginBottom);
+        }
+        return height;
+    }
+    static getHeight(el) {
+        let height = el.offsetHeight;
+        let style = getComputedStyle(el);
+        height -= parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+        return height;
+    }
+    static getWidth(el) {
+        let width = el.offsetWidth;
+        let style = getComputedStyle(el);
+        width -= parseFloat(style.paddingLeft) + parseFloat(style.paddingRight) + parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
+        return width;
+    }
+    static getViewport() {
+        let win = window, d = document, e = d.documentElement, g = d.getElementsByTagName('body')[0], w = win.innerWidth || e.clientWidth || g.clientWidth, h = win.innerHeight || e.clientHeight || g.clientHeight;
+        return { width: w, height: h };
+    }
+    static getOffset(el) {
+        var rect = el.getBoundingClientRect();
+        return {
+            top: rect.top + (window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0),
+            left: rect.left + (window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0),
+        };
+    }
+    static replaceElementWith(element, replacementElement) {
+        let parentNode = element.parentNode;
+        if (!parentNode)
+            throw `Can't replace element`;
+        return parentNode.replaceChild(replacementElement, element);
+    }
+    static getUserAgent() {
+        return navigator.userAgent;
+    }
+    static isIE() {
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf('MSIE ');
+        if (msie > 0) {
+            // IE 10 or older => return version number
+            return true;
+        }
+        var trident = ua.indexOf('Trident/');
+        if (trident > 0) {
+            // IE 11 => return version number
+            var rv = ua.indexOf('rv:');
+            return true;
+        }
+        var edge = ua.indexOf('Edge/');
+        if (edge > 0) {
+            // Edge (IE 12+) => return version number
+            return true;
+        }
+        // other browser
+        return false;
+    }
+    static isIOS() {
+        return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window['MSStream'];
+    }
+    static isAndroid() {
+        return /(android)/i.test(navigator.userAgent);
+    }
+    static appendChild(element, target) {
+        if (this.isElement(target))
+            target.appendChild(element);
+        else if (target.el && target.el.nativeElement)
+            target.el.nativeElement.appendChild(element);
+        else
+            throw 'Cannot append ' + target + ' to ' + element;
+    }
+    static removeChild(element, target) {
+        if (this.isElement(target))
+            target.removeChild(element);
+        else if (target.el && target.el.nativeElement)
+            target.el.nativeElement.removeChild(element);
+        else
+            throw 'Cannot remove ' + element + ' from ' + target;
+    }
+    static removeElement(element) {
+        if (!('remove' in Element.prototype))
+            element.parentNode.removeChild(element);
+        else
+            element.remove();
+    }
+    static isElement(obj) {
+        return (typeof HTMLElement === "object" ? obj instanceof HTMLElement :
+            obj && typeof obj === "object" && obj !== null && obj.nodeType === 1 && typeof obj.nodeName === "string");
+    }
+    static calculateScrollbarWidth(el) {
+        if (el) {
+            let style = getComputedStyle(el);
+            return (el.offsetWidth - el.clientWidth - parseFloat(style.borderLeftWidth) - parseFloat(style.borderRightWidth));
+        }
+        else {
+            if (this.calculatedScrollbarWidth !== null)
+                return this.calculatedScrollbarWidth;
+            let scrollDiv = document.createElement("div");
+            scrollDiv.className = "p-scrollbar-measure";
+            document.body.appendChild(scrollDiv);
+            let scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+            document.body.removeChild(scrollDiv);
+            this.calculatedScrollbarWidth = scrollbarWidth;
+            return scrollbarWidth;
+        }
+    }
+    static calculateScrollbarHeight() {
+        if (this.calculatedScrollbarHeight !== null)
+            return this.calculatedScrollbarHeight;
+        let scrollDiv = document.createElement("div");
+        scrollDiv.className = "p-scrollbar-measure";
+        document.body.appendChild(scrollDiv);
+        let scrollbarHeight = scrollDiv.offsetHeight - scrollDiv.clientHeight;
+        document.body.removeChild(scrollDiv);
+        this.calculatedScrollbarWidth = scrollbarHeight;
+        return scrollbarHeight;
+    }
+    static invokeElementMethod(element, methodName, args) {
+        element[methodName].apply(element, args);
+    }
+    static clearSelection() {
+        if (window.getSelection) {
+            if (window.getSelection().empty) {
+                window.getSelection().empty();
+            }
+            else if (window.getSelection().removeAllRanges && window.getSelection().rangeCount > 0 && window.getSelection().getRangeAt(0).getClientRects().length > 0) {
+                window.getSelection().removeAllRanges();
+            }
+        }
+        else if (document['selection'] && document['selection'].empty) {
+            try {
+                document['selection'].empty();
+            }
+            catch (error) {
+                //ignore IE bug
+            }
+        }
+    }
+    static getBrowser() {
+        if (!this.browser) {
+            let matched = this.resolveUserAgent();
+            this.browser = {};
+            if (matched.browser) {
+                this.browser[matched.browser] = true;
+                this.browser['version'] = matched.version;
+            }
+            if (this.browser['chrome']) {
+                this.browser['webkit'] = true;
+            }
+            else if (this.browser['webkit']) {
+                this.browser['safari'] = true;
+            }
+        }
+        return this.browser;
+    }
+    static resolveUserAgent() {
+        let ua = navigator.userAgent.toLowerCase();
+        let match = /(chrome)[ \/]([\w.]+)/.exec(ua) ||
+            /(webkit)[ \/]([\w.]+)/.exec(ua) ||
+            /(opera)(?:.*version|)[ \/]([\w.]+)/.exec(ua) ||
+            /(msie) ([\w.]+)/.exec(ua) ||
+            ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec(ua) ||
+            [];
+        return {
+            browser: match[1] || "",
+            version: match[2] || "0"
+        };
+    }
+    static isInteger(value) {
+        if (Number.isInteger) {
+            return Number.isInteger(value);
+        }
+        else {
+            return typeof value === "number" && isFinite(value) && Math.floor(value) === value;
+        }
+    }
+    static isHidden(element) {
+        return element.offsetParent === null;
+    }
+    static getFocusableElements(element) {
+        let focusableElements = DomHandler.find(element, `button:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden]),
+                [href][clientHeight][clientWidth]:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden]),
+                input:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden]), select:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden]),
+                textarea:not([tabindex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden]), [tabIndex]:not([tabIndex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden]),
+                [contenteditable]:not([tabIndex = "-1"]):not([disabled]):not([style*="display:none"]):not([hidden])`);
+        let visibleFocusableElements = [];
+        for (let focusableElement of focusableElements) {
+            if (getComputedStyle(focusableElement).display != "none" && getComputedStyle(focusableElement).visibility != "hidden")
+                visibleFocusableElements.push(focusableElement);
+        }
+        return visibleFocusableElements;
+    }
+    static generateZIndex() {
+        this.zindex = this.zindex || 999;
+        return ++this.zindex;
+    }
+}
+DomHandler.zindex = 1000;
+DomHandler.calculatedScrollbarWidth = null;
+DomHandler.calculatedScrollbarHeight = null;
+
+class ConnectedOverlayScrollHandler {
+    constructor(element, listener = () => { }) {
+        this.element = element;
+        this.listener = listener;
+    }
+    bindScrollListener() {
+        this.scrollableParents = DomHandler.getScrollableParents(this.element);
+        for (let i = 0; i < this.scrollableParents.length; i++) {
+            this.scrollableParents[i].addEventListener('scroll', this.listener);
+        }
+    }
+    unbindScrollListener() {
+        if (this.scrollableParents) {
+            for (let i = 0; i < this.scrollableParents.length; i++) {
+                this.scrollableParents[i].removeEventListener('scroll', this.listener);
+            }
+        }
+    }
+    destroy() {
+        this.unbindScrollListener();
+        this.element = null;
+        this.listener = null;
+        this.scrollableParents = null;
+    }
+}
+
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=primeng-dom.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/primeng/fesm2015/primeng-focustrap.js":
+/*!************************************************************!*\
+  !*** ./node_modules/primeng/fesm2015/primeng-focustrap.js ***!
+  \************************************************************/
+/*! exports provided: FocusTrap, FocusTrapModule */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FocusTrap", function() { return FocusTrap; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "FocusTrapModule", function() { return FocusTrapModule; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm2015/common.js");
+/* harmony import */ var primeng_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! primeng/dom */ "./node_modules/primeng/fesm2015/primeng-dom.js");
+
+
+
+
+class FocusTrap {
+    constructor(el) {
+        this.el = el;
+    }
+    onkeydown(e) {
+        if (this.pFocusTrapDisabled !== true) {
+            e.preventDefault();
+            let focusableElements = primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].getFocusableElements(this.el.nativeElement);
+            if (focusableElements && focusableElements.length > 0) {
+                if (!focusableElements[0].ownerDocument.activeElement) {
+                    focusableElements[0].focus();
+                }
+                else {
+                    let focusedIndex = focusableElements.indexOf(focusableElements[0].ownerDocument.activeElement);
+                    if (e.shiftKey) {
+                        if (focusedIndex == -1 || focusedIndex === 0)
+                            focusableElements[focusableElements.length - 1].focus();
+                        else
+                            focusableElements[focusedIndex - 1].focus();
+                    }
+                    else {
+                        if (focusedIndex == -1 || focusedIndex === (focusableElements.length - 1))
+                            focusableElements[0].focus();
+                        else
+                            focusableElements[focusedIndex + 1].focus();
+                    }
+                }
+            }
+        }
+    }
+}
+FocusTrap.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Directive"], args: [{
+                selector: '[pFocusTrap]',
+            },] }
+];
+FocusTrap.ctorParameters = () => [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"] }
+];
+FocusTrap.propDecorators = {
+    pFocusTrapDisabled: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Input"] }],
+    onkeydown: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["HostListener"], args: ['keydown.tab', ['$event'],] }, { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["HostListener"], args: ['keydown.shift.tab', ['$event'],] }]
+};
+class FocusTrapModule {
+}
+FocusTrapModule.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModule"], args: [{
+                imports: [_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"]],
+                exports: [FocusTrap],
+                declarations: [FocusTrap]
+            },] }
+];
+
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=primeng-focustrap.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/primeng/fesm2015/primeng-ripple.js":
+/*!*********************************************************!*\
+  !*** ./node_modules/primeng/fesm2015/primeng-ripple.js ***!
+  \*********************************************************/
+/*! exports provided: Ripple, RippleModule */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Ripple", function() { return Ripple; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RippleModule", function() { return RippleModule; });
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm2015/core.js");
+/* harmony import */ var _angular_common__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/common */ "./node_modules/@angular/common/fesm2015/common.js");
+/* harmony import */ var primeng_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! primeng/dom */ "./node_modules/primeng/fesm2015/primeng-dom.js");
+/* harmony import */ var primeng_api__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! primeng/api */ "./node_modules/primeng/fesm2015/primeng-api.js");
+
+
+
+
+
+class Ripple {
+    constructor(el, zone, config) {
+        this.el = el;
+        this.zone = zone;
+        this.config = config;
+    }
+    ngAfterViewInit() {
+        if (this.config && this.config.ripple) {
+            this.zone.runOutsideAngular(() => {
+                this.create();
+                this.mouseDownListener = this.onMouseDown.bind(this);
+                this.el.nativeElement.addEventListener('mousedown', this.mouseDownListener);
+            });
+        }
+    }
+    onMouseDown(event) {
+        let ink = this.getInk();
+        if (!ink || getComputedStyle(ink, null).display === 'none') {
+            return;
+        }
+        primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].removeClass(ink, 'p-ink-active');
+        if (!primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].getHeight(ink) && !primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].getWidth(ink)) {
+            let d = Math.max(primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].getOuterWidth(this.el.nativeElement), primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].getOuterHeight(this.el.nativeElement));
+            ink.style.height = d + 'px';
+            ink.style.width = d + 'px';
+        }
+        let offset = primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].getOffset(this.el.nativeElement);
+        let x = event.pageX - offset.left + document.body.scrollTop - primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].getWidth(ink) / 2;
+        let y = event.pageY - offset.top + document.body.scrollLeft - primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].getHeight(ink) / 2;
+        ink.style.top = y + 'px';
+        ink.style.left = x + 'px';
+        primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].addClass(ink, 'p-ink-active');
+    }
+    getInk() {
+        for (let i = 0; i < this.el.nativeElement.children.length; i++) {
+            if (this.el.nativeElement.children[i].className.indexOf('p-ink') !== -1) {
+                return this.el.nativeElement.children[i];
+            }
+        }
+        return null;
+    }
+    resetInk() {
+        let ink = this.getInk();
+        if (ink) {
+            primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].removeClass(ink, 'p-ink-active');
+        }
+    }
+    onAnimationEnd(event) {
+        primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].removeClass(event.currentTarget, 'p-ink-active');
+    }
+    create() {
+        let ink = document.createElement('span');
+        ink.className = 'p-ink';
+        this.el.nativeElement.appendChild(ink);
+        this.animationListener = this.onAnimationEnd.bind(this);
+        ink.addEventListener('animationend', this.animationListener);
+    }
+    remove() {
+        let ink = this.getInk();
+        if (ink) {
+            this.el.nativeElement.removeEventListener('mousedown', this.mouseDownListener);
+            ink.removeEventListener('animationend', this.animationListener);
+            primeng_dom__WEBPACK_IMPORTED_MODULE_2__["DomHandler"].removeElement(ink);
+        }
+    }
+    ngOnDestroy() {
+        if (this.config && this.config.ripple) {
+            this.remove();
+        }
+    }
+}
+Ripple.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Directive"], args: [{
+                selector: '[pRipple]',
+                host: {
+                    '[class.p-ripple]': 'true'
+                }
+            },] }
+];
+Ripple.ctorParameters = () => [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["ElementRef"] },
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgZone"] },
+    { type: primeng_api__WEBPACK_IMPORTED_MODULE_3__["PrimeNGConfig"], decorators: [{ type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["Optional"] }] }
+];
+class RippleModule {
+}
+RippleModule.decorators = [
+    { type: _angular_core__WEBPACK_IMPORTED_MODULE_0__["NgModule"], args: [{
+                imports: [_angular_common__WEBPACK_IMPORTED_MODULE_1__["CommonModule"]],
+                exports: [Ripple],
+                declarations: [Ripple]
+            },] }
+];
+
+/**
+ * Generated bundle index. Do not edit.
+ */
+
+
+//# sourceMappingURL=primeng-ripple.js.map
 
 
 /***/ }),
