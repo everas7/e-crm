@@ -1,4 +1,4 @@
-package ecrm;
+package ecrm.model;
 
 import java.util.Objects;
 
@@ -7,7 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
-class Employee {
+public class Employee {
 
   private @Id @GeneratedValue Long id;
   private String name;
@@ -16,9 +16,9 @@ class Employee {
   private String phone;
   private String department;
 
-  Employee() {}
+  public Employee() {}
 
-  Employee(String name, String lastName, String idDocument, String phone, String department) {
+  public Employee(String name, String lastName, String idDocument, String phone, String department) {
     this.name = name;
     this.lastName = lastName;
     this.idDocument = idDocument;

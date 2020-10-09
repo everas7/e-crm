@@ -1,6 +1,8 @@
-package ecrm;
+package ecrm.controller;
 
 import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +12,16 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import ecrm.model.Employee;
+import ecrm.service.EmployeeService;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.core.io.InputStreamResource;
+
 
 @RestController
 @RequestMapping("/api")
@@ -31,6 +43,17 @@ class EmployeeController {
     return service.add(employee);
   }
 
+  @PostMapping("/employees/import")
+  ResponseEntity<InputStreamResource> addBulk(@RequestParam("file") MultipartFile dataFile) throws IOException  {
+    ByteArrayInputStream in = service.addBulk(dataFile);
+    HttpHeaders headers = new HttpHeaders();
+    headers.add("Content-Disposition", "attachment; filename=results.xlsx");
+    return ResponseEntity
+        .ok()
+        .headers(headers)
+        .body(new InputStreamResource(in));
+  }
+
   // Single item
 
   @GetMapping("/employees/{id}")
@@ -44,7 +67,7 @@ class EmployeeController {
   }
 
   @DeleteMapping("/employees/{id}")
-  void deleteEmployee(@PathVariable Long id) {
+  void delete(@PathVariable Long id) {
     service.delete(id);
   }
 }
