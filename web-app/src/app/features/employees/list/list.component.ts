@@ -5,6 +5,7 @@ import { EmployeeService } from 'src/app/core/services/employee.service';
 import { TableColumn } from 'src/app/shared/table/table.component';
 import { Employee } from 'src/app/core/models/employee';
 import { Router } from '@angular/router';
+import { FormBuilder } from '@angular/forms';
 
 @Component({
   selector: 'app-list',
@@ -14,6 +15,9 @@ import { Router } from '@angular/router';
 export class ListComponent implements OnInit {
   cols: TableColumn[];
   rows: Observable<Employee[]>;
+
+  displayImportDialog = false;
+  importFile;
   constructor(
     private employeeService: EmployeeService,
     private router: Router
@@ -43,5 +47,10 @@ export class ListComponent implements OnInit {
 
   createEmployee() {
     this.router.navigate([`employees/create`]);
+  }
+
+  import() {
+    this.employeeService.import(this.importFile[0]);
+    this.importFile = null;
   }
 }

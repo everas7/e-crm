@@ -9,6 +9,10 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxMaskModule, IConfig } from 'ngx-mask';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { DialogModule } from 'primeng/dialog';
+import {MatIconModule} from '@angular/material/icon';
+
+
 
 import { NavbarComponent } from './navbar/navbar.component';
 import { TableComponent } from './table/table.component';
@@ -16,6 +20,8 @@ import { ListViewComponent } from './list-view/list-view.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { ButtonComponent } from './button/button.component';
 import { InputComponent } from './input/input.component';
+import { DialogComponent } from './dialog/dialog.component';
+import { FileUploadComponent } from './file-upload/file-upload.component';
 
 const maskConfig: Partial<IConfig> = {
   validation: false,
@@ -34,6 +40,8 @@ const maskConfig: Partial<IConfig> = {
     MatFormFieldModule,
     ReactiveFormsModule,
     NgxMaskModule.forRoot(maskConfig),
+    DialogModule,
+    MatIconModule
   ],
   declarations: [
     NavbarComponent,
@@ -42,6 +50,8 @@ const maskConfig: Partial<IConfig> = {
     BreadcrumbComponent,
     ButtonComponent,
     InputComponent,
+    DialogComponent,
+    FileUploadComponent
   ],
   exports: [
     NavbarComponent,
@@ -50,6 +60,8 @@ const maskConfig: Partial<IConfig> = {
     BreadcrumbComponent,
     ButtonComponent,
     InputComponent,
+    DialogComponent,
+    FileUploadComponent
   ],
 })
 export class SharedModule {}

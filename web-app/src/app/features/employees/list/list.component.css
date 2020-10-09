@@ -10,3 +10,7 @@
     flex-direction: row;
     justify-content: space-between;
 }
+
+.divider {
+    margin-left: 15px;
+}

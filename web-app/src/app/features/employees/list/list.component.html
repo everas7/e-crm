@@ -1,7 +1,19 @@
 <div class="employees-list">
   <div class="employees-list__header">
     <h1>Employees</h1>
-    <app-button text="Register Employee" color="accent" (click)="createEmployee()"></app-button>
+    <span>
+      <app-button
+        text="Register Employee"
+        color="primary"
+        (click)="createEmployee()"
+      ></app-button>
+      <span class="divider"></span>
+      <app-button
+        color="accent"
+        text="Import Employees"
+        (click)="displayImportDialog = true"
+      ></app-button>
+    </span>
   </div>
 
   <app-table
@@ -9,4 +21,18 @@
     [rows]="rows | async"
     (onRowClick)="handleRowClick($event)"
   ></app-table>
+
+  <app-dialog
+    [display]="displayImportDialog"
+    header="Import Employees"
+    width="30%"
+    (onClose)="displayImportDialog = false"
+  >
+    <app-file-upload [(files)]="importFile"></app-file-upload>
+    <app-button
+      [disabled]="!importFile?.length"
+      text="Import"
+      (click)="import()"
+    ></app-button>
+  </app-dialog>
 </div>
