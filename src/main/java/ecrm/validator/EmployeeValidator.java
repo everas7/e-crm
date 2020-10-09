@@ -1,12 +1,15 @@
 package ecrm.validator;
 
+import ecrm.dao.EmployeeRepository;
 import ecrm.model.*;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmployeeValidator {
+    private final EmployeeRepository repository;
 
-    public EmployeeValidator() {
+    public EmployeeValidator(EmployeeRepository repository) {
+        this.repository = repository;
     }
 
     public ValidationResponse validate(Employee employee) {
@@ -32,18 +35,28 @@ public class EmployeeValidator {
             errors += "Field 'phone' in incorrect format. ";
         }
 
-        if (!isIdValid(employee.getIdDocument())) {
+        if (!isIdDocumentValid(employee.getIdDocument())) {
             isValid = false;
-            errors += "Field 'Id Document' in incorrect format.";
+            errors += "Field 'Id Document' in incorrect format. ";
+        } else {
+            if (!isIdDocumentUnique(employee.getIdDocument())) {
+                isValid = false;
+                errors += "This Id Document is being used by another employee. ";
+            }
         }
         return new ValidationResponse(isValid, errors);
     }
 
     boolean isPhoneValid(String phone) {
         return phone.matches("[0-9]+") && phone.length() == 10;
-    } 
+    }
 
-    boolean isIdValid(String idDocument) {
+    boolean isIdDocumentValid(String idDocument) {
         return idDocument.matches("[0-9]+") && idDocument.length() == 11;
+    }
+
+    boolean isIdDocumentUnique(String idDocument) {
+        var employee = repository.findByIdDocument(idDocument);
+        return employee == null;
     }
 }

@@ -6,4 +6,5 @@ import ecrm.model.Employee;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
+    Employee findByIdDocument(String idDocument);
 }
